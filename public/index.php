@@ -133,6 +133,10 @@ try {
             $controller->dashboard();
         } elseif ($action === 'users') {
             $controller->users();
+        } elseif (preg_match('/^users\/(\d+)$/', $action, $m)) {
+            $controller->viewUser($m[1]);
+        } elseif (preg_match('/^users\/(\d+)\/update$/', $action, $m)) {
+            $controller->updateUser($m[1]);
         } elseif (preg_match('/^users\/(\d+)\/delete$/', $action, $m)) {
             $controller->deleteUser($m[1]);
         } elseif ($action === 'jobs') {

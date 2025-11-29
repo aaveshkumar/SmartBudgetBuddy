@@ -63,6 +63,7 @@ require __DIR__ . '/../common/header.php';
                             </td>
                             <td><?= formatDate($user['created_at']) ?></td>
                             <td>
+                                <a href="/admin/users/<?= $user['id'] ?>" class="btn btn-sm btn-info">View</a>
                                 <?php if ($user['type'] !== 'admin'): ?>
                                     <form action="/admin/users/<?= $user['id'] ?>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
                                         <?= csrfField() ?>
