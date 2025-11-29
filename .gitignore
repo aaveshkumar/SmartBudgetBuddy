@@ -1,0 +1,35 @@
+# PHP
+vendor/
+composer.lock
+
+# Uploads
+public/uploads/resumes/*
+public/uploads/logos/*
+!public/uploads/resumes/.gitkeep
+!public/uploads/logos/.gitkeep
+
+# Logs
+logs/*.log
+*.log
+
+# Environment (if using .env file)
+.env
+
+# Cache
+cache/*
+!cache/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/*
+!tmp/.gitkeep

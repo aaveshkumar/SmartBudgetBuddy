@@ -1,0 +1,274 @@
+"ConnectWith9 Job Portal" Development Input Guide (Core PHP for Replit)
+1. Folder Structure
+/jobportal/
+│
+├── /config/
+│   ├── database.php        # DB connection using PDO
+│   ├── constants.php       # App constants
+│   └── env.php             # Environment variables (DB credentials, API keys)
+│
+├── /app/
+│   ├── /controllers/
+│   │   ├── AuthController.php
+│   │   ├── JobController.php
+│   │   ├── CategoryController.php
+│   │   └── AdminController.php
+│   │
+│   ├── /models/
+│   │   ├── User.php
+│   │   ├── Job.php
+│   │   ├── Category.php
+│   │   └── Application.php
+│   │
+│   └── /views/
+│       ├── auth/
+│       ├── jobs/
+│       ├── admin/
+│       └── common/         # header, footer, sidebar templates
+│
+├── /public/
+│   ├── index.php           # Front controller
+│   ├── assets/             # CSS, JS, Images
+│   └── uploads/            # Resumes, logos
+│
+├── /includes/
+│   ├── functions.php
+│   ├── seo.php
+│   ├── csrf.php
+│   └── email.php
+│
+├── /cron/
+│   ├── sitemap.php
+│   ├── ping_search_engines.php
+│   ├── daily_backup.php
+│   └── expired_jobs_cleanup.php
+│
+├── /docs/
+│   ├── setup.md
+│   ├── security.md
+│   ├── seo.md
+│   ├── api.md
+│   └── sample_data.sql
+│
+└── /logs/
+    └── error.log
+
+2. Database Schema (MySQL)
+-- Users Table
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    type ENUM('jobseeker','employer','admin') DEFAULT 'jobseeker',
+    verified TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Categories Table
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(150) NOT NULL UNIQUE
+);
+
+-- Technologies Table
+CREATE TABLE technologies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+-- Education Levels Table
+CREATE TABLE education_levels (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+-- Jobs Table
+CREATE TABLE jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    category_id INT NOT NULL,
+    employer_id INT NOT NULL,
+    location VARCHAR(100) NOT NULL,
+    salary VARCHAR(50),
+    type ENUM('Full-time','Part-time','Contract','Internship') DEFAULT 'Full-time',
+    status ENUM('Pending','Approved','Rejected') DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (employer_id) REFERENCES users(id)
+);
+
+-- Applications Table
+CREATE TABLE applications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    job_id INT NOT NULL,
+    user_id INT NOT NULL,
+    resume_path VARCHAR(255) NOT NULL,
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (job_id) REFERENCES jobs(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Saved Jobs Table
+CREATE TABLE saved_jobs (
+    user_id INT NOT NULL,
+    job_id INT NOT NULL,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(user_id, job_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id)
+);
+
+-- Blog Table (SEO Content)
+CREATE TABLE blog (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    meta_title VARCHAR(255),
+    meta_description VARCHAR(160),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- SEO Logs Table
+CREATE TABLE seo_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    url VARCHAR(255) NOT NULL,
+    meta_score INT DEFAULT 0,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+3. Sample Initial Data
+-- Categories
+INSERT INTO categories (name, slug) VALUES
+('IT','it'), ('Banking','banking'), ('Marketing','marketing'),
+('Education','education'), ('Healthcare','healthcare'), ('Design','design');
+
+-- Technologies
+INSERT INTO technologies (name) VALUES
+('PHP'),('React'),('Python'),('Java'),('Node.js'),('MySQL');
+
+-- Education Levels
+INSERT INTO education_levels (name) VALUES
+('10th'),('12th'),('Graduate'),('Postgraduate'),('Diploma');
+
+-- Sample Users
+INSERT INTO users (name,email,password,type,verified) VALUES
+('Admin User','admin@example.com','[hashed_password]','admin',1),
+('Employer One','employer1@example.com','[hashed_password]','employer',1),
+('Jobseeker One','jobseeker1@example.com','[hashed_password]','jobseeker',1);
+
+-- Sample Jobs
+INSERT INTO jobs (title,description,category_id,employer_id,location,salary,type,status) VALUES
+('Software Developer','Develop web applications using PHP & JS',1,2,'Delhi','30000-50000','Full-time','Approved'),
+('Marketing Executive','Manage campaigns & social media marketing',3,2,'Mumbai','25000-40000','Full-time','Approved'),
+('Data Entry Operator','Enter data into ERP system',1,2,'Bangalore','15000-25000','Full-time','Approved');
+
+
+Note: [hashed_password] should be generated with PHP password_hash('YourPassword', PASSWORD_DEFAULT).
+
+4. Security & Anti-Spam Configuration
+
+Use reCAPTCHA v2 or v3: store site key and secret in /config/env.php.
+
+Implement CSRF tokens: generate per form, store in session.
+
+Validate all inputs: htmlspecialchars(strip_tags($input)).
+
+Resume file validation: only .pdf, .docx, .txt. Max 5MB.
+
+Login throttling: block after 5 failed attempts per IP for 15 mins.
+
+Session fingerprint: combine $_SERVER['REMOTE_ADDR'] + $_SERVER['HTTP_USER_AGENT'].
+
+5. SEO & Meta Configuration
+
+Clean URLs via .htaccess rewrite rules:
+Example: /jobs/software-developer-delhi → job.php?id=123
+
+Dynamic meta tags per job and blog:
+
+<title><?= $job['title'].' | '.$job['location'].' | '.$company_name ?></title>
+<meta name="description" content="<?= substr(strip_tags($job['description']),0,155) ?>">
+
+
+Schema.org JSON-LD for each job.
+
+Auto sitemap generation: /cron/sitemap.php.
+
+Auto ping to search engines: /cron/ping_search_engines.php.
+
+6. Cron Jobs & Automation
+Script	Frequency	Purpose
+sitemap.php	Daily	Rebuild sitemap.xml
+ping_search_engines.php	Daily	Notify Google/Bing
+daily_backup.php	Daily	Backup DB + uploads
+expired_jobs_cleanup.php	Weekly	Delete or archive expired jobs
+daily_jobs_digest.php	Daily	Send email digest to users
+image_optimize.php	On Upload	Compress uploaded images
+
+On Replit, schedule using external free cron service like cron-job.org.
+
+7. Admin Panel Inputs
+
+Dashboard: total users, jobs, applications, active employers.
+
+User management: approve/ban/edit/delete.
+
+Job moderation: approve/reject/publish jobs.
+
+SEO tools: meta checker, sitemap trigger.
+
+Backup tools: manual restore/create backup.
+
+Settings: email config, reCAPTCHA keys, API keys.
+
+Logs: login activity, job posts, edits.
+
+8. Frontend & AJAX Inputs
+
+Homepage: latest jobs, top categories, top technologies.
+
+Search: AJAX autocomplete for jobs and locations.
+
+Job listing page: filter by category, type, location, salary.
+
+Job detail page: show company info, apply button, save job.
+
+User dashboard: saved jobs, applied jobs, profile edit.
+
+Employer dashboard: post jobs, view applicants, edit jobs.
+
+9. Optional Smart Features (Free / Low-Cost)
+
+Job matching logic (skills + education + location).
+
+Resume parser (smalot/pdfparser).
+
+Keyword suggestions based on job titles.
+
+Fake employer detection using repeated names/emails/IPs.
+
+Email notifications for new applications, saved job alerts.
+
+10. Environment Variables (/config/env.php)
+<?php
+define('DB_HOST','remote-db-host');
+define('DB_NAME','jobportal_db');
+define('DB_USER','db_username');
+define('DB_PASS','db_password');
+
+define('RECAPTCHA_SITE_KEY','your_site_key');
+define('RECAPTCHA_SECRET_KEY','your_secret_key');
+
+define('SMTP_HOST','smtp.gmail.com');
+define('SMTP_USER','your-email@gmail
+
+Remote Database Connection Details
+
+User: u647904474_connect9job
+Password: Hostinger@1234#
+Host: srv1642.hstgr.io
+Database: u647904474_connect9job
