@@ -114,6 +114,86 @@ class AdminController {
         require __DIR__ . '/../views/admin/users.php';
     }
     
+    // View user details
+    public function viewUser($id) {
+        $user = $this->userModel->findById($id);
+        
+        if (!$user) {
+            setFlash('error', 'User not found');
+            redirect('/admin/users');
+        }
+        
+        require __DIR__ . '/../views/admin/view_user.php';
+    }
+    
+    // Update user
+    public function updateUser($id) {
+        checkCSRF();
+        
+        $user = $this->userModel->findById($id);
+        if (!$user) {
+            setFlash('error', 'User not found');
+            redirect('/admin/users');
+        }
+        
+        $errors = [];
+        $data = [];
+        
+        // Validate name
+        if (empty($_POST['name'])) {
+            $errors[] = 'Name is required';
+        } else {
+            $data['name'] = sanitize($_POST['name']);
+        }
+        
+        // Validate email
+        if (empty($_POST['email'])) {
+            $errors[] = 'Email is required';
+        } else {
+            $email = sanitize($_POST['email']);
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Invalid email address';
+            } elseif ($this->userModel->emailExists($email, $id)) {
+                $errors[] = 'Email already exists';
+            } else {
+                $data['email'] = $email;
+            }
+        }
+        
+        // Update type if provided
+        if (!empty($_POST['type']) && in_array($_POST['type'], ['admin', 'employer', 'jobseeker'])) {
+            $data['type'] = sanitize($_POST['type']);
+        }
+        
+        // Update verified status if provided
+        if (isset($_POST['verified'])) {
+            $data['verified'] = (int)$_POST['verified'];
+        }
+        
+        // Update password if provided
+        if (!empty($_POST['password'])) {
+            if (strlen($_POST['password']) < 6) {
+                $errors[] = 'Password must be at least 6 characters';
+            } else {
+                $data['password'] = $_POST['password'];
+            }
+        }
+        
+        if (!empty($errors)) {
+            setFlash('error', implode(', ', $errors));
+            redirect("/admin/users/$id");
+            return;
+        }
+        
+        if ($this->userModel->update($id, $data)) {
+            setFlash('success', 'User updated successfully');
+        } else {
+            setFlash('error', 'Failed to update user');
+        }
+        
+        redirect('/admin/users');
+    }
+    
     // Delete user
     public function deleteUser($id) {
         checkCSRF();
