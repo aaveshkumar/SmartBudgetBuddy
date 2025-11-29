@@ -84,6 +84,7 @@ class AuthController {
         
         $name = sanitize($_POST['name'] ?? '');
         $email = sanitize($_POST['email'] ?? '');
+        $mobile_no = sanitize($_POST['mobile_no'] ?? '');
         $password = $_POST['password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
         $type = sanitize($_POST['type'] ?? USER_TYPE_JOBSEEKER);
@@ -126,6 +127,7 @@ class AuthController {
             'email' => $email,
             'password' => $password,
             'type' => $type,
+            'mobile_no' => $mobile_no,
             'verified' => 1 // Auto-verify for now
         ]);
         

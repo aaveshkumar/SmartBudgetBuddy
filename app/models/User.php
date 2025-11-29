@@ -15,8 +15,8 @@ class User {
     
     // Create new user
     public function create($data) {
-        $sql = "INSERT INTO users (name, email, password, type, verified) 
-                VALUES (:name, :email, :password, :type, :verified)";
+        $sql = "INSERT INTO users (name, email, password, type, mobile_no, verified) 
+                VALUES (:name, :email, :password, :type, :mobile_no, :verified)";
         
         $stmt = $this->db->prepare($sql);
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -26,6 +26,7 @@ class User {
             ':email' => $data['email'],
             ':password' => $hashedPassword,
             ':type' => $data['type'] ?? USER_TYPE_JOBSEEKER,
+            ':mobile_no' => $data['mobile_no'] ?? null,
             ':verified' => $data['verified'] ?? 0
         ]);
         
@@ -61,7 +62,7 @@ class User {
     
     // Get all users (for admin)
     public function getAll($filters = []) {
-        $sql = "SELECT id, name, email, type, verified, created_at FROM users WHERE 1=1";
+        $sql = "SELECT id, name, email, mobile_no, type, verified, created_at FROM users WHERE 1=1";
         $params = [];
         
         if (!empty($filters['type'])) {
@@ -121,7 +122,7 @@ class User {
             if ($key === 'password') {
                 $fields[] = "$key = :$key";
                 $params[":$key"] = password_hash($value, PASSWORD_DEFAULT);
-            } elseif (in_array($key, ['name', 'email', 'type', 'verified'])) {
+            } elseif (in_array($key, ['name', 'email', 'type', 'verified', 'mobile_no'])) {
                 $fields[] = "$key = :$key";
                 $params[":$key"] = $value;
             }

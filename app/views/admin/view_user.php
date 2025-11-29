@@ -42,6 +42,13 @@ require __DIR__ . '/../common/header.php';
                 
                 <div class="row">
                     <div class="col-md-6 mb-3">
+                        <label for="mobile_no" class="form-label">Mobile Number</label>
+                        <input type="tel" class="form-control" id="mobile_no" name="mobile_no" value="<?= htmlspecialchars($user['mobile_no'] ?? '') ?>" placeholder="+91 1234567890">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
                         <label for="type" class="form-label">User Type</label>
                         <select class="form-select" id="type" name="type" required>
                             <option value="jobseeker" <?= $user['type'] === 'jobseeker' ? 'selected' : '' ?>>Job Seeker</option>

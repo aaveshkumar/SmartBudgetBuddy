@@ -37,6 +37,7 @@ require __DIR__ . '/../common/header.php';
                             <th>ID</th>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Mobile</th>
                             <th>Type</th>
                             <th>Verified</th>
                             <th>Joined</th>
@@ -49,6 +50,7 @@ require __DIR__ . '/../common/header.php';
                             <td><?= $user['id'] ?></td>
                             <td><?= htmlspecialchars($user['name']) ?></td>
                             <td><?= htmlspecialchars($user['email']) ?></td>
+                            <td><?= htmlspecialchars($user['mobile_no'] ?? '-') ?></td>
                             <td>
                                 <span class="badge bg-<?= $user['type'] === 'admin' ? 'danger' : ($user['type'] === 'employer' ? 'primary' : 'secondary') ?>">
                                     <?= ucfirst($user['type']) ?>

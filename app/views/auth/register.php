@@ -31,6 +31,31 @@ require __DIR__ . '/../common/header.php';
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                <label for="mobile_no" class="form-label">Mobile Number</label>
+                                <input type="tel" class="form-control" id="mobile_no" name="mobile_no" placeholder="+91 1234567890">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Account Type</label>
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="type" id="jobseeker" value="jobseeker" checked>
+                                        <label class="form-check-label" for="jobseeker">
+                                            <i class="fas fa-user"></i> Job Seeker
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="type" id="employer" value="employer">
+                                        <label class="form-check-label" for="employer">
+                                            <i class="fas fa-building"></i> Employer
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <input type="password" class="form-control" id="password" name="password" required minlength="6">
                             </div>
@@ -38,24 +63,6 @@ require __DIR__ . '/../common/header.php';
                             <div class="col-md-6 mb-3">
                                 <label for="confirm_password" class="form-label">Confirm Password</label>
                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Account Type</label>
-                            <div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="type" id="jobseeker" value="jobseeker" checked>
-                                    <label class="form-check-label" for="jobseeker">
-                                        <i class="fas fa-user"></i> Job Seeker
-                                    </label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="type" id="employer" value="employer">
-                                    <label class="form-check-label" for="employer">
-                                        <i class="fas fa-building"></i> Employer
-                                    </label>
-                                </div>
                             </div>
                         </div>
                         
