@@ -74,8 +74,8 @@
                 .page-loader-spinner {
                     width: 50px;
                     height: 50px;
-                    border: 4px solid rgba(255, 255, 255, 0.3);
-                    border-top-color: #ffffff;
+                    border: 4px solid rgba(13, 110, 253, 0.3);
+                    border-top-color: #0d6efd;
                     border-radius: 50%;
                     animation: spinLoader 0.8s linear infinite;
                     margin: 0 auto 10px;
