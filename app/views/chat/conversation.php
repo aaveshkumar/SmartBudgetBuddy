@@ -125,7 +125,7 @@ require __DIR__ . '/../common/header.php';
                 <?php if (empty($messages)): ?>
                     <div class="text-center text-muted py-5" id="emptyState">
                         <i class="fas fa-comment-dots fa-3x mb-3"></i>
-                        <?php if ($currentUser['type'] === 'employer'): ?>
+                        <?php if ($currentUser['role'] === 'employer'): ?>
                             <p>No messages yet. Send your first message to start the conversation!</p>
                         <?php else: ?>
                             <p>No messages yet. The employer will send you a message soon.</p>
@@ -149,7 +149,7 @@ require __DIR__ . '/../common/header.php';
             </div>
             
             <div class="chat-input">
-                <?php $canSendFirstMessage = !empty($messages) || $currentUser['type'] === 'employer'; ?>
+                <?php $canSendFirstMessage = !empty($messages) || $currentUser['role'] === 'employer'; ?>
                 <?php if ($canSendFirstMessage): ?>
                     <form id="messageForm" onsubmit="sendMessage(event)">
                         <div class="input-group">

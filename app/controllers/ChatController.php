@@ -47,6 +47,7 @@ class ChatController {
         $this->messageModel->markAsRead($id, $user['id']);
         
         $otherPartyName = $user['role'] === 'employer' ? $conversation['candidate_name'] : $conversation['employer_name'];
+        $currentUser = $user;
         
         $meta = generateMetaTags('Chat with ' . $otherPartyName, 'Conversation about ' . $conversation['job_title']);
         require __DIR__ . '/../views/chat/conversation.php';
@@ -73,7 +74,7 @@ class ChatController {
         }
         
         $existingMessages = $this->messageModel->getByConversationId($conversationId, 1);
-        if (empty($existingMessages) && $user['type'] !== 'employer') {
+        if (empty($existingMessages) && $user['role'] !== 'employer') {
             echo json_encode(['error' => 'Only employers can send the first message. Please wait for the employer to contact you.']);
             return;
         }
