@@ -1,13 +1,55 @@
 // ConnectWith9 Job Portal JavaScript
 
+// Page Loader Functions
+const showLoader = () => {
+    const loader = document.getElementById('pageLoader');
+    if (loader) loader.classList.add('active');
+};
+
+const hideLoader = () => {
+    const loader = document.getElementById('pageLoader');
+    if (loader) loader.classList.remove('active');
+};
+
+// Show loader on form submission
+const setupFormLoaders = () => {
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const isDelete = this.querySelector('button[type="submit"][class*="danger"]');
+            if (!isDelete) {
+                setTimeout(showLoader, 100);
+            }
+        });
+    });
+};
+
+// Show loader on navigation links (except anchors and admin/delete links)
+const setupNavigationLoaders = () => {
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href && !href.startsWith('#') && !href.includes('/delete')) {
+                showLoader();
+            }
+        });
+    });
+};
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Setup loaders
+    setupFormLoaders();
+    setupNavigationLoaders();
+    
     // Auto-hide alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
             alert.style.transition = 'opacity 0.5s';
             alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 500);
+            setTimeout(() => {
+                alert.remove();
+                hideLoader();
+            }, 500);
         }, 5000);
     });
     
