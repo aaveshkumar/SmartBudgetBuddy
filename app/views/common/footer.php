@@ -58,14 +58,43 @@
             document.head.appendChild(style);
         }
         
+        // Determine loader text based on button
+        function getLoaderText(btn) {
+            if (!btn) return 'Processing...';
+            
+            var btnText = btn.textContent.trim().toLowerCase();
+            var classList = btn.className;
+            
+            // Check button class for action
+            if (classList.includes('btn-danger')) return 'Deleting...';
+            if (classList.includes('btn-warning')) return 'Updating...';
+            if (classList.includes('btn-success')) return 'Saving...';
+            if (classList.includes('btn-info')) return 'Loading...';
+            
+            // Check button text for action
+            if (btnText.includes('search')) return 'Searching...';
+            if (btnText.includes('delete')) return 'Deleting...';
+            if (btnText.includes('save')) return 'Saving...';
+            if (btnText.includes('update')) return 'Updating...';
+            if (btnText.includes('submit')) return 'Submitting...';
+            if (btnText.includes('register')) return 'Registering...';
+            if (btnText.includes('login')) return 'Loading...';
+            if (btnText.includes('approve')) return 'Approving...';
+            if (btnText.includes('reject')) return 'Rejecting...';
+            if (btnText.includes('apply')) return 'Applying...';
+            if (btnText.includes('post')) return 'Posting...';
+            if (btnText.includes('publish')) return 'Publishing...';
+            if (btnText.includes('cancel')) return 'Canceling...';
+            if (btnText.includes('confirm')) return 'Confirming...';
+            
+            return 'Processing...';
+        }
+        
         // Add loader on form submission
         document.addEventListener('submit', function(e) {
             var btn = e.target.querySelector('button[type="submit"]');
             
-            // Skip delete buttons
-            if (!btn || btn.classList.contains('btn-danger')) {
-                return;
-            }
+            if (!btn) return;
             
             // Check if already has loader
             if (btn.querySelector('.btn-loader-spinner')) {
@@ -75,8 +104,16 @@
             // Create and add spinner
             var spinner = document.createElement('span');
             spinner.className = 'btn-loader-spinner';
-            btn.prepend(spinner);
-            btn.append(' Processing...');
+            var loaderText = getLoaderText(btn);
+            
+            // Save original content
+            var originalHTML = btn.innerHTML;
+            btn.dataset.loaderOriginal = originalHTML;
+            
+            // Replace with spinner + text
+            btn.innerHTML = '';
+            btn.appendChild(spinner);
+            btn.appendChild(document.createTextNode(' ' + loaderText));
             btn.disabled = true;
         }, true);
     </script>
