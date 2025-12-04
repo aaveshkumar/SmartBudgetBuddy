@@ -62,7 +62,7 @@
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: rgba(255, 255, 255, 0.95);
+                    background: transparent;
                     z-index: 9999;
                     display: flex;
                     justify-content: center;
@@ -71,6 +71,10 @@
                 }
                 .page-loader-content {
                     text-align: center;
+                    background: rgba(255, 255, 255, 0.95);
+                    padding: 30px 40px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
                 }
                 .page-loader-spinner {
                     width: 50px;
