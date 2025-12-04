@@ -77,6 +77,45 @@ $currentUser = getCurrentUser();
                                 <a class="nav-link" href="/jobseeker/profile">My Profile</a>
                             </li>
                         <?php endif; ?>
+                        
+                        <?php if ($currentUser['type'] !== USER_TYPE_ADMIN): ?>
+                        <!-- Chat Icon -->
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="/chat" title="Messages">
+                                <i class="fas fa-comments"></i>
+                                <span id="chatBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        
+                        <!-- Notification Bell -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link position-relative dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" title="Notifications">
+                                <i class="fas fa-bell"></i>
+                                <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                                    0
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end notification-dropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                                <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                    <span><strong>Notifications</strong></span>
+                                    <button type="button" class="btn btn-sm btn-link text-primary p-0" onclick="markAllNotificationsRead()">Mark all read</button>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <div id="notificationList">
+                                    <li class="text-center py-3 text-muted">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                                    </li>
+                                </div>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="text-center">
+                                    <a class="dropdown-item text-primary" href="/notifications">View All Notifications</a>
+                                </li>
+                            </ul>
+                        </li>
+                        
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user"></i> <?= htmlspecialchars($currentUser['name']) ?>
@@ -85,10 +124,12 @@ $currentUser = getCurrentUser();
                                 <?php if ($currentUser['type'] === USER_TYPE_JOBSEEKER): ?>
                                     <li><a class="dropdown-item" href="/jobseeker/profile"><i class="fas fa-id-card"></i> My Profile</a></li>
                                     <li><a class="dropdown-item" href="/jobseeker/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
+                                    <li><a class="dropdown-item" href="/chat"><i class="fas fa-comments"></i> Messages</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <?php elseif ($currentUser['type'] === USER_TYPE_EMPLOYER): ?>
                                     <li><a class="dropdown-item" href="/employer/jobs"><i class="fas fa-briefcase"></i> My Jobs</a></li>
                                     <li><a class="dropdown-item" href="/employer/candidates"><i class="fas fa-users"></i> Browse Candidates</a></li>
+                                    <li><a class="dropdown-item" href="/chat"><i class="fas fa-comments"></i> Messages</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <?php elseif ($currentUser['type'] === USER_TYPE_ADMIN): ?>
                                     <li><a class="dropdown-item" href="/admin/users"><i class="fas fa-users"></i> Manage Users</a></li>

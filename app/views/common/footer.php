@@ -278,6 +278,151 @@
                 });
             });
         })();
+        
+        <?php if (isset($currentUser) && $currentUser): ?>
+        // Notification and Chat polling
+        (function() {
+            var notificationBadge = document.getElementById('notificationBadge');
+            var chatBadge = document.getElementById('chatBadge');
+            var notificationList = document.getElementById('notificationList');
+            var lastPollTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            
+            function updateNotificationBadge(count) {
+                if (notificationBadge) {
+                    if (count > 0) {
+                        notificationBadge.textContent = count > 99 ? '99+' : count;
+                        notificationBadge.style.display = 'inline-block';
+                    } else {
+                        notificationBadge.style.display = 'none';
+                    }
+                }
+            }
+            
+            function updateChatBadge(count) {
+                if (chatBadge) {
+                    if (count > 0) {
+                        chatBadge.textContent = count > 99 ? '99+' : count;
+                        chatBadge.style.display = 'inline-block';
+                    } else {
+                        chatBadge.style.display = 'none';
+                    }
+                }
+            }
+            
+            function formatTimeAgo(dateString) {
+                var date = new Date(dateString);
+                var now = new Date();
+                var seconds = Math.floor((now - date) / 1000);
+                
+                if (seconds < 60) return 'Just now';
+                if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+                if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+                if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
+                return date.toLocaleDateString();
+            }
+            
+            function getNotificationIcon(type) {
+                switch(type) {
+                    case 'job_selected': return 'fa-trophy text-success';
+                    case 'new_job': return 'fa-briefcase text-primary';
+                    case 'chat_message': return 'fa-comment text-info';
+                    case 'system': return 'fa-cog text-warning';
+                    default: return 'fa-bell text-secondary';
+                }
+            }
+            
+            function renderNotifications(notifications, unreadCount) {
+                if (!notificationList) return;
+                
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = '<li class="text-center py-3 text-muted">No notifications yet</li>';
+                    return;
+                }
+                
+                var html = '';
+                notifications.slice(0, 5).forEach(function(n) {
+                    var iconClass = getNotificationIcon(n.type);
+                    var readClass = n.is_read == 0 ? 'bg-light' : '';
+                    html += '<li class="dropdown-item ' + readClass + '" style="white-space: normal; padding: 10px 15px;">';
+                    html += '<div class="d-flex align-items-start">';
+                    html += '<i class="fas ' + iconClass + ' me-2 mt-1"></i>';
+                    html += '<div class="flex-grow-1">';
+                    html += '<strong style="font-size: 0.9rem;">' + escapeHtml(n.title) + '</strong>';
+                    html += '<p class="mb-0 text-muted" style="font-size: 0.8rem;">' + escapeHtml(n.message).substring(0, 50) + '...</p>';
+                    html += '<small class="text-muted">' + formatTimeAgo(n.created_at) + '</small>';
+                    html += '</div></div></li>';
+                });
+                
+                notificationList.innerHTML = html;
+            }
+            
+            function escapeHtml(text) {
+                var div = document.createElement('div');
+                div.appendChild(document.createTextNode(text));
+                return div.innerHTML;
+            }
+            
+            function loadRecentNotifications() {
+                fetch('/notifications/recent')
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.error) return;
+                        updateNotificationBadge(data.unread_count);
+                        renderNotifications(data.notifications, data.unread_count);
+                    })
+                    .catch(function(err) { console.log('Notification fetch error:', err); });
+            }
+            
+            function loadChatUnreadCount() {
+                fetch('/chat/unread-count')
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.error) return;
+                        updateChatBadge(data.count);
+                    })
+                    .catch(function(err) { console.log('Chat count fetch error:', err); });
+            }
+            
+            function pollForUpdates() {
+                fetch('/notifications/poll?since=' + encodeURIComponent(lastPollTime))
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.error) return;
+                        updateNotificationBadge(data.unread_count);
+                        if (data.timestamp) lastPollTime = data.timestamp;
+                        
+                        // Show browser notification for new items
+                        if (data.notifications && data.notifications.length > 0) {
+                            loadRecentNotifications();
+                        }
+                    })
+                    .catch(function(err) { console.log('Poll error:', err); });
+            }
+            
+            // Initial load
+            loadRecentNotifications();
+            loadChatUnreadCount();
+            
+            // Poll every 30 seconds
+            setInterval(function() {
+                pollForUpdates();
+                loadChatUnreadCount();
+            }, 30000);
+            
+            // Expose mark all as read function
+            window.markAllNotificationsRead = function() {
+                fetch('/notifications/mark-all-read', { method: 'POST' })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            updateNotificationBadge(0);
+                            loadRecentNotifications();
+                        }
+                    })
+                    .catch(function(err) { console.log('Mark read error:', err); });
+            };
+        })();
+        <?php endif; ?>
     </script>
 </body>
 </html>

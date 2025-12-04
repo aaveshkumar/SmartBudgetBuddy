@@ -12,6 +12,8 @@ require_once __DIR__ . '/../../app/models/Category.php';
 require_once __DIR__ . '/../../app/models/Application.php';
 require_once __DIR__ . '/../../app/models/JobSeekerProfile.php';
 require_once __DIR__ . '/../../app/models/User.php';
+require_once __DIR__ . '/../../app/models/Notification.php';
+require_once __DIR__ . '/../../app/models/Conversation.php';
 
 class EmployerController {
     private $jobModel;
@@ -251,8 +253,27 @@ class EmployerController {
         $candidateName = $application['applicant_name'];
         $candidateEmail = $application['applicant_email'];
         $candidatePhone = $application['applicant_phone'] ?? '';
+        $candidateId = $application['user_id'];
         $jobTitle = $job['title'];
         $companyName = $user['name'];
+        
+        // Create in-app notification for the candidate
+        $notificationModel = new Notification();
+        $notificationModel->notifyJobSeekerSelected($candidateId, $user['id'], $jobId, $applicationId, $jobTitle, $companyName);
+        
+        // Create or get existing conversation
+        $conversationModel = new Conversation();
+        $existingConversation = $conversationModel->findByParticipants($user['id'], $candidateId, $jobId);
+        
+        if (!$existingConversation) {
+            $conversationModel->create([
+                'employer_id' => $user['id'],
+                'candidate_id' => $candidateId,
+                'job_id' => $jobId,
+                'application_id' => $applicationId,
+                'status' => 'active'
+            ]);
+        }
         
         // Clean phone number for WhatsApp (ensure country code)
         $cleanPhone = preg_replace('/[^0-9]/', '', $candidatePhone);
@@ -274,7 +295,7 @@ class EmployerController {
             'whatsapp_message' => $whatsappMessage
         ];
         
-        setFlash('success', "Candidate " . $candidateName . " has been selected! Please send them a notification using the buttons below.");
+        setFlash('success', "Candidate " . $candidateName . " has been selected! They have been notified and you can now chat with them. Send them an email/WhatsApp using the buttons below.");
         
         redirect("/employer/jobs/$jobId/applications");
     }

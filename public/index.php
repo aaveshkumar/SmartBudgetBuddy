@@ -123,6 +123,50 @@ try {
         exit;
     }
     
+    // Notification routes
+    if (preg_match('/^notifications(.*)/', $path, $matches)) {
+        require_once __DIR__ . '/../app/controllers/NotificationController.php';
+        $controller = new NotificationController();
+        $action = trim($matches[1], '/');
+        
+        if (empty($action)) {
+            $controller->index();
+        } elseif ($action === 'count') {
+            $controller->getUnreadCount();
+        } elseif ($action === 'recent') {
+            $controller->getRecent();
+        } elseif ($action === 'poll') {
+            $controller->poll();
+        } elseif ($action === 'mark-all-read' && $requestMethod === 'POST') {
+            $controller->markAllAsRead();
+        } elseif (preg_match('/^(\d+)\/read$/', $action, $m) && $requestMethod === 'POST') {
+            $controller->markAsRead($m[1]);
+        } elseif (preg_match('/^(\d+)\/delete$/', $action, $m) && $requestMethod === 'POST') {
+            $controller->delete($m[1]);
+        }
+        exit;
+    }
+    
+    // Chat routes
+    if (preg_match('/^chat(.*)/', $path, $matches)) {
+        require_once __DIR__ . '/../app/controllers/ChatController.php';
+        $controller = new ChatController();
+        $action = trim($matches[1], '/');
+        
+        if (empty($action)) {
+            $controller->index();
+        } elseif ($action === 'unread-count') {
+            $controller->getUnreadCount();
+        } elseif (preg_match('/^(\d+)$/', $action, $m)) {
+            $controller->conversation($m[1]);
+        } elseif (preg_match('/^(\d+)\/send$/', $action, $m) && $requestMethod === 'POST') {
+            $controller->sendMessage($m[1]);
+        } elseif (preg_match('/^(\d+)\/messages$/', $action, $m)) {
+            $controller->getMessages($m[1]);
+        }
+        exit;
+    }
+    
     // Admin routes
     if (preg_match('/^admin\/(.+)/', $path, $matches)) {
         require_once __DIR__ . '/../app/controllers/AdminController.php';
