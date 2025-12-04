@@ -11,6 +11,27 @@ A comprehensive job portal application built with Core PHP featuring three user 
 - **Server**: Running on port 5000
 
 ## Recent Changes (December 4, 2025)
+- ✅ **COMPLETE NOTIFICATION & CHAT SYSTEM IMPLEMENTED**
+  - **Database**: Created `notifications`, `conversations`, and `conversation_messages` tables
+  - **Notification Features**:
+    - Real-time notification bell with unread count badge in header
+    - AJAX polling every 10 seconds for near real-time updates
+    - Notification types: job_selected, new_job, system, chat_message
+    - Mark as read/unread and delete notifications
+    - Full notifications page with list view
+  - **Chat System**:
+    - Automatic conversation creation when employer selects candidate
+    - Real-time messaging with AJAX polling
+    - Chat icon with unread message count in header
+    - Full conversation interface with message history
+    - Access control: Only employer and selected candidate can chat
+  - **Admin Features**:
+    - System notifications page at /admin/notifications
+    - Send notifications to all employers, job seekers, or all users
+    - Job approval automatically notifies all job seekers of new jobs
+  - **Integration**:
+    - EmployerController::selectCandidate creates notification + conversation
+    - AdminController::approveJob broadcasts new job notifications
 - ✅ **CRITICAL FIX: Database Setup Complete** - All tables created and operational
   - Executed `php scripts/setup_database.php` to create core tables (users, jobs, categories, applications, etc.)
   - Executed `php scripts/add_jobseeker_profiles.php` to create profile tables (profiles, work_experiences, education, skills, certifications, languages, projects)

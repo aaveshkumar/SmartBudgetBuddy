@@ -124,14 +124,14 @@ class Notification {
     }
     
     public function getJobSeekersByRole() {
-        $sql = "SELECT id FROM users WHERE role = 'jobseeker'";
+        $sql = "SELECT id FROM users WHERE type = 'jobseeker'";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
     
     public function getEmployersByRole() {
-        $sql = "SELECT id FROM users WHERE role = 'employer'";
+        $sql = "SELECT id FROM users WHERE type = 'employer'";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
