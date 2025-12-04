@@ -81,11 +81,11 @@
                     margin: 0 auto 10px;
                 }
                 .page-loader-text {
-                    color: #0d6efd;
+                    color: #ffffff;
                     font-size: 14px;
                     font-weight: 600;
                     margin: 0;
-                    text-shadow: 0 0 10px white, 0 0 20px white, 0 0 30px white;
+                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
                 }
             `;
             document.head.appendChild(style);
