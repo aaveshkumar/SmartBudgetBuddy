@@ -74,18 +74,17 @@
                 .page-loader-spinner {
                     width: 50px;
                     height: 50px;
-                    border: 4px solid rgba(13, 110, 253, 0.2);
-                    border-top-color: #0d6efd;
+                    border: 4px solid rgba(255, 255, 255, 0.3);
+                    border-top-color: #ffffff;
                     border-radius: 50%;
                     animation: spinLoader 0.8s linear infinite;
                     margin: 0 auto 10px;
                 }
                 .page-loader-text {
-                    color: #ffffff;
+                    color: #0d6efd;
                     font-size: 14px;
                     font-weight: 600;
                     margin: 0;
-                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
                 }
             `;
             document.head.appendChild(style);
