@@ -27,69 +27,6 @@ $currentUser = getCurrentUser();
     <?php endif; ?>
 </head>
 <body>
-    <!-- Page Loading Overlay -->
-    <div id="pageLoader">
-        <div class="loader-container">
-            <div class="spinner-ring">
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-            <div class="loader-text">Processing...</div>
-        </div>
-    </div>
-
-    <!-- Inline Loader Script -->
-    <script>
-        // Show loader overlay
-        function showLoader() {
-            var loader = document.getElementById('pageLoader');
-            if (loader) {
-                loader.classList.add('active');
-            }
-        }
-
-        // Hide loader
-        function hideLoader() {
-            var loader = document.getElementById('pageLoader');
-            if (loader) {
-                loader.classList.remove('active');
-            }
-        }
-
-        // Listen for all form submissions
-        document.addEventListener('submit', function(e) {
-            var btn = e.target.querySelector('button[type="submit"]');
-            // Show loader for all forms except delete forms
-            if (!btn || !btn.classList.contains('btn-danger')) {
-                showLoader();
-            }
-        }, true);
-
-        // Listen for all clicks
-        document.addEventListener('click', function(e) {
-            var el = e.target;
-            var isDangerBtn = el.classList && el.classList.contains('btn-danger');
-            var isDeleteLink = el.href && el.href.includes('/delete');
-            var isAnchorLink = el.href && el.href.startsWith('#');
-            
-            // Show loader on button clicks (except delete) and link clicks (except delete/anchor)
-            if ((el.tagName === 'BUTTON' || el.tagName === 'A') && 
-                !isDangerBtn && !isDeleteLink && !isAnchorLink) {
-                showLoader();
-            }
-        }, true);
-
-        // Also hide loader when page shows errors or content loads
-        window.addEventListener('load', function() {
-            // Check if there are error messages - if so, keep loader hidden
-            var errors = document.querySelectorAll('.alert-danger');
-            if (errors.length > 0) {
-                hideLoader();
-            }
-        });
-    </script>
-
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="/">

@@ -1,21 +1,6 @@
 // ConnectWith9 Job Portal JavaScript
 
-// Global loader functions
-const showPageLoader = () => {
-    const loader = document.getElementById('pageLoader');
-    if (loader) {
-        loader.classList.add('active');
-    }
-};
-
-const hidePageLoader = () => {
-    const loader = document.getElementById('pageLoader');
-    if (loader) {
-        loader.classList.remove('active');
-    }
-};
-
-// Add loader to button
+// Add spinner to button (for database operations)
 const addButtonLoader = (button) => {
     if (!button || button.querySelector('.btn-spinner')) return;
     const spinner = document.createElement('span');
@@ -25,43 +10,16 @@ const addButtonLoader = (button) => {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Show loader on ALL form submissions (login, register, updates, etc)
+    // Add loader to form submit buttons (database calls only)
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function(e) {
             const button = this.querySelector('button[type="submit"]');
             
-            // Skip loader for delete confirmations
+            // Skip loader for delete forms (btn-danger)
             if (button && !button.classList.contains('btn-danger')) {
                 addButtonLoader(button);
-                showPageLoader();
             }
         });
-    });
-    
-    // Show loader on direct button clicks (for AJAX or other operations)
-    document.querySelectorAll('button').forEach(button => {
-        // Skip delete buttons, small buttons, and navigation buttons
-        if (!button.classList.contains('btn-danger') && 
-            !button.classList.contains('btn-sm') &&
-            button.type !== 'button') {
-            button.addEventListener('click', function(e) {
-                // Only show loader for submit buttons or buttons inside forms
-                if (this.type === 'submit' || this.closest('form')) {
-                    showPageLoader();
-                    addButtonLoader(this);
-                }
-            });
-        }
-    });
-    
-    // Show loader on navigation links (but not anchors)
-    document.querySelectorAll('a').forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && !href.startsWith('#') && !href.includes('/delete')) {
-            link.addEventListener('click', function() {
-                showPageLoader();
-            });
-        }
     });
     
     // Auto-hide alerts after 5 seconds
