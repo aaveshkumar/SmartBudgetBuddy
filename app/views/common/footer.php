@@ -33,22 +33,73 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
     <script>
-        // Add loader to all submit buttons when form is submitted
-        document.addEventListener('submit', function(e) {
-            var btn = e.target.querySelector('button[type="submit"]');
-            if (btn && !btn.classList.contains('btn-danger')) {
-                // Create spinner
-                var spinner = document.createElement('span');
-                spinner.className = 'btn-spinner';
-                spinner.innerHTML = '';
-                // Insert at beginning of button
-                if (btn.firstChild) {
-                    btn.insertBefore(spinner, btn.firstChild);
-                } else {
-                    btn.appendChild(spinner);
+        console.log('Footer script loading - setting up form loader');
+        
+        // Inject animation styles
+        if (!document.getElementById('spinner-styles')) {
+            var style = document.createElement('style');
+            style.id = 'spinner-styles';
+            style.innerHTML = `
+                @keyframes spinLoader {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
                 }
-                btn.disabled = true;
+                .btn-loader-spinner {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    border: 3px solid rgba(255, 255, 255, 0.2);
+                    border-top-color: white;
+                    border-right-color: white;
+                    border-radius: 50%;
+                    animation: spinLoader 0.8s linear infinite;
+                    margin-right: 10px;
+                    vertical-align: middle;
+                }
+            `;
+            document.head.appendChild(style);
+            console.log('Spinner styles injected');
+        }
+        
+        // Function to add loader to button
+        function addLoaderToButton(btn) {
+            if (!btn) return;
+            if (btn.querySelector('.btn-loader-spinner')) {
+                console.log('Spinner already exists');
+                return;
             }
+            
+            console.log('Adding loader to button: ', btn.textContent);
+            // Save original text
+            var originalText = btn.textContent;
+            btn.dataset.originalText = originalText;
+            
+            // Create spinner
+            var spinner = document.createElement('span');
+            spinner.className = 'btn-loader-spinner';
+            spinner.innerHTML = '';
+            
+            // Clear button text and add spinner + text
+            btn.innerHTML = '';
+            btn.appendChild(spinner);
+            btn.appendChild(document.createTextNode('Processing...'));
+            btn.disabled = true;
+            console.log('Loader added successfully to button with text');
+        }
+        
+        // Add loader when submit button is CLICKED
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.type === 'submit' && !e.target.classList.contains('btn-danger')) {
+                console.log('Submit button clicked:', e.target);
+                addLoaderToButton(e.target);
+            }
+        }, true);
+        
+        // Also add loader on form submission (for keyboard enter)
+        document.addEventListener('submit', function(e) {
+            console.log('Form submit event triggered');
+            var btn = e.target.querySelector('button[type="submit"]');
+            addLoaderToButton(btn);
         }, true);
     </script>
 </body>
