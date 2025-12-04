@@ -77,27 +77,10 @@ $currentUser = getCurrentUser();
                                 <a class="nav-link" href="/jobseeker/profile">My Profile</a>
                             </li>
                         <?php endif; ?>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> <?= htmlspecialchars($currentUser['name']) ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt"></i> Logout
                             </a>
-                            <ul class="dropdown-menu">
-                                <?php if ($currentUser['type'] === USER_TYPE_JOBSEEKER): ?>
-                                    <li><a class="dropdown-item" href="/jobseeker/profile"><i class="fas fa-id-card"></i> My Profile</a></li>
-                                    <li><a class="dropdown-item" href="/jobseeker/applications"><i class="fas fa-file-alt"></i> My Applications</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                <?php elseif ($currentUser['type'] === USER_TYPE_EMPLOYER): ?>
-                                    <li><a class="dropdown-item" href="/employer/jobs"><i class="fas fa-briefcase"></i> My Jobs</a></li>
-                                    <li><a class="dropdown-item" href="/employer/candidates"><i class="fas fa-users"></i> Browse Candidates</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                <?php elseif ($currentUser['type'] === USER_TYPE_ADMIN): ?>
-                                    <li><a class="dropdown-item" href="/admin/users"><i class="fas fa-users"></i> Manage Users</a></li>
-                                    <li><a class="dropdown-item" href="/admin/jobs"><i class="fas fa-briefcase"></i> Manage Jobs</a></li>
-                                    <li><a class="dropdown-item" href="/admin/candidates"><i class="fas fa-user-graduate"></i> Browse Candidates</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                <?php endif; ?>
-                                <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                            </ul>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">

@@ -212,6 +212,68 @@
                 }
             }, true);
         })();
+        
+        // Button loader for specific action buttons to prevent double-click
+        (function() {
+            var loadingButtons = [
+                'manage users', 'manage jobs', 'review jobs', 'view jobs',
+                'browse jobs', 'register now', 'view details', 'view all jobs'
+            ];
+            
+            function shouldShowButtonLoader(btnText) {
+                var text = btnText.toLowerCase().trim();
+                return loadingButtons.some(function(loadBtn) {
+                    return text === loadBtn || text.includes(loadBtn);
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('a.btn, button.btn');
+                
+                if (!btn) return;
+                
+                // Skip if already loading
+                if (btn.classList.contains('btn-loading')) return;
+                if (btn.querySelector('.btn-loader-spinner')) return;
+                
+                var btnText = btn.textContent.trim();
+                
+                if (shouldShowButtonLoader(btnText)) {
+                    // Prevent double click
+                    btn.classList.add('btn-loading');
+                    
+                    // Save original content
+                    var originalHTML = btn.innerHTML;
+                    btn.dataset.loaderOriginal = originalHTML;
+                    
+                    // Create spinner
+                    var spinner = document.createElement('span');
+                    spinner.className = 'btn-loader-spinner';
+                    
+                    // Replace content
+                    btn.innerHTML = '';
+                    btn.appendChild(spinner);
+                    btn.appendChild(document.createTextNode(' Loading...'));
+                    
+                    // Disable pointer events
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.7';
+                }
+            }, true);
+            
+            // Reset buttons when page shows (for back/forward navigation)
+            window.addEventListener('pageshow', function() {
+                document.querySelectorAll('.btn-loading').forEach(function(btn) {
+                    if (btn.dataset.loaderOriginal) {
+                        btn.innerHTML = btn.dataset.loaderOriginal;
+                        delete btn.dataset.loaderOriginal;
+                    }
+                    btn.classList.remove('btn-loading');
+                    btn.style.pointerEvents = '';
+                    btn.style.opacity = '';
+                });
+            });
+        })();
     </script>
 </body>
 </html>
