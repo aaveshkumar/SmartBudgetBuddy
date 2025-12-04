@@ -123,9 +123,14 @@ require __DIR__ . '/../common/header.php';
             
             <div class="chat-messages" id="chatMessages">
                 <?php if (empty($messages)): ?>
-                    <div class="text-center text-muted py-5">
+                    <div class="text-center text-muted py-5" id="emptyState">
                         <i class="fas fa-comment-dots fa-3x mb-3"></i>
-                        <p>No messages yet. Start the conversation!</p>
+                        <?php if ($currentUser['type'] === 'employer'): ?>
+                            <p>No messages yet. Send your first message to start the conversation!</p>
+                        <?php else: ?>
+                            <p>No messages yet. The employer will send you a message soon.</p>
+                            <small class="text-info"><i class="fas fa-info-circle"></i> Employers send the first message in conversations</small>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <?php foreach ($messages as $message): ?>
@@ -144,14 +149,21 @@ require __DIR__ . '/../common/header.php';
             </div>
             
             <div class="chat-input">
-                <form id="messageForm" onsubmit="sendMessage(event)">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="messageInput" placeholder="Type your message..." required autocomplete="off">
-                        <button type="submit" class="btn btn-primary" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                <?php $canSendFirstMessage = !empty($messages) || $currentUser['type'] === 'employer'; ?>
+                <?php if ($canSendFirstMessage): ?>
+                    <form id="messageForm" onsubmit="sendMessage(event)">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="messageInput" placeholder="Type your message..." required autocomplete="off">
+                            <button type="submit" class="btn btn-primary" id="sendBtn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                <?php else: ?>
+                    <div class="alert alert-info mb-0" id="waitingMessage">
+                        <i class="fas fa-info-circle"></i> Please wait for the employer to send the first message before you can reply.
                     </div>
-                </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>

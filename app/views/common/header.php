@@ -135,6 +135,7 @@ $currentUser = getCurrentUser();
                                     <li><a class="dropdown-item" href="/admin/users"><i class="fas fa-users"></i> Manage Users</a></li>
                                     <li><a class="dropdown-item" href="/admin/jobs"><i class="fas fa-briefcase"></i> Manage Jobs</a></li>
                                     <li><a class="dropdown-item" href="/admin/candidates"><i class="fas fa-user-graduate"></i> Browse Candidates</a></li>
+                                    <li><a class="dropdown-item" href="/admin/reports"><i class="fas fa-flag"></i> Reports</a></li>
                                     <li><a class="dropdown-item" href="/admin/notifications"><i class="fas fa-bullhorn"></i> System Notifications</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <?php endif; ?>

@@ -167,6 +167,14 @@ try {
         exit;
     }
     
+    // Report route
+    if ($path === 'report/submit' && $requestMethod === 'POST') {
+        require_once __DIR__ . '/../app/controllers/ReportController.php';
+        $controller = new ReportController();
+        $controller->submitReport();
+        exit;
+    }
+    
     // Admin routes
     if (preg_match('/^admin\/(.+)/', $path, $matches)) {
         require_once __DIR__ . '/../app/controllers/AdminController.php';
@@ -201,6 +209,14 @@ try {
             $controller->notifications();
         } elseif ($action === 'notifications/send' && $requestMethod === 'POST') {
             $controller->sendSystemNotification();
+        } elseif ($action === 'reports') {
+            $controller->reports();
+        } elseif (preg_match('/^reports\/(\d+)$/', $action, $m)) {
+            $controller->viewReport($m[1]);
+        } elseif (preg_match('/^reports\/(\d+)\/update$/', $action, $m) && $requestMethod === 'POST') {
+            $controller->updateReport($m[1]);
+        } elseif (preg_match('/^reports\/(\d+)\/delete$/', $action, $m) && $requestMethod === 'POST') {
+            $controller->deleteReport($m[1]);
         }
         exit;
     }

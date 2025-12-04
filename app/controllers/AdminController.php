@@ -12,12 +12,14 @@ require_once __DIR__ . '/../../app/models/Job.php';
 require_once __DIR__ . '/../../app/models/Application.php';
 require_once __DIR__ . '/../../app/models/JobSeekerProfile.php';
 require_once __DIR__ . '/../../app/models/Notification.php';
+require_once __DIR__ . '/../../app/models/Report.php';
 
 class AdminController {
     private $userModel;
     private $jobModel;
     private $applicationModel;
     private $profileModel;
+    private $reportModel;
     
     public function __construct() {
         requireRole(USER_TYPE_ADMIN);
@@ -26,6 +28,7 @@ class AdminController {
         $this->jobModel = new Job();
         $this->applicationModel = new Application();
         $this->profileModel = new JobSeekerProfile();
+        $this->reportModel = new Report();
     }
     
     // View and filter candidates
@@ -331,5 +334,68 @@ class AdminController {
         
         setFlash('success', "System notification sent to $count users successfully!");
         redirect('/admin/notifications');
+    }
+    
+    // View all reports
+    public function reports() {
+        $status = sanitize($_GET['status'] ?? '');
+        $reports = $this->reportModel->getAll($status ?: null);
+        $statusCounts = $this->reportModel->getCountByStatus();
+        
+        $meta = generateMetaTags('Reports Management', 'View and manage reported content');
+        require __DIR__ . '/../views/admin/reports.php';
+    }
+    
+    // View single report with details
+    public function viewReport($id) {
+        $report = $this->reportModel->findById($id);
+        
+        if (!$report) {
+            setFlash('error', 'Report not found');
+            redirect('/admin/reports');
+        }
+        
+        if ($report['reported_type'] === 'job') {
+            $reportedItem = $this->reportModel->getReportedJobDetails($report['reported_id']);
+        } else {
+            $reportedItem = $this->reportModel->getReportedUserDetails($report['reported_id']);
+        }
+        
+        $meta = generateMetaTags('View Report', 'Report details');
+        require __DIR__ . '/../views/admin/view_report.php';
+    }
+    
+    // Update report status
+    public function updateReport($id) {
+        checkCSRF();
+        
+        $status = sanitize($_POST['status'] ?? '');
+        $adminNotes = sanitize($_POST['admin_notes'] ?? '');
+        
+        if (!in_array($status, ['pending', 'reviewed', 'resolved', 'dismissed'])) {
+            setFlash('error', 'Invalid status');
+            redirect('/admin/reports');
+        }
+        
+        if ($this->reportModel->updateStatus($id, $status, $adminNotes)) {
+            setFlash('success', 'Report status updated successfully');
+        } else {
+            setFlash('error', 'Failed to update report');
+        }
+        
+        redirect("/admin/reports/$id");
+    }
+    
+    // Delete report
+    public function deleteReport($id) {
+        checkCSRF();
+        
+        if ($this->reportModel->delete($id)) {
+            setFlash('success', 'Report deleted successfully');
+        } else {
+            setFlash('error', 'Failed to delete report');
+        }
+        
+        redirect('/admin/reports');
     }
 }

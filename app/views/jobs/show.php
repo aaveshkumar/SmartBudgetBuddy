@@ -39,8 +39,13 @@ require __DIR__ . '/../common/header.php';
                                 <span class="badge bg-success"><?= formatSalary($job['salary']) ?></span>
                             <?php endif; ?>
                         </p>
-                        <p class="text-muted">
+                        <p class="text-muted d-flex align-items-center justify-content-between">
                             <small><i class="fas fa-clock"></i> Posted <?= formatDate($job['created_at']) ?></small>
+                            <?php if (isLoggedIn() && getCurrentUser()['status'] === 'active'): ?>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="openReportModal('job', <?= $job['id'] ?>)">
+                                    <i class="fas fa-flag"></i> Report
+                                </button>
+                            <?php endif; ?>
                         </p>
                     </div>
                     

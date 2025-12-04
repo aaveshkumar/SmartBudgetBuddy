@@ -34,6 +34,35 @@
         </div>
     </footer>
     
+    <?php if (isset($currentUser) && $currentUser && $currentUser['status'] === 'active'): ?>
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel"><i class="fas fa-flag text-danger"></i> Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="reportType" value="">
+                    <input type="hidden" id="reportId" value="">
+                    <div class="mb-3">
+                        <label for="reportMessage" class="form-label">Why are you reporting this?</label>
+                        <textarea class="form-control" id="reportMessage" rows="4" placeholder="Please describe the issue in detail (at least 10 characters)..." required></textarea>
+                    </div>
+                    <div id="reportError" class="alert alert-danger d-none"></div>
+                    <div id="reportSuccess" class="alert alert-success d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="submitReportBtn" onclick="submitReport()">
+                        <i class="fas fa-flag"></i> Submit Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
     <script>
@@ -278,6 +307,70 @@
                 });
             });
         })();
+        
+        // Report functionality
+        function openReportModal(type, id) {
+            document.getElementById('reportType').value = type;
+            document.getElementById('reportId').value = id;
+            document.getElementById('reportMessage').value = '';
+            document.getElementById('reportError').classList.add('d-none');
+            document.getElementById('reportSuccess').classList.add('d-none');
+            document.getElementById('submitReportBtn').disabled = false;
+            var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+            modal.show();
+        }
+        
+        function submitReport() {
+            var type = document.getElementById('reportType').value;
+            var id = document.getElementById('reportId').value;
+            var message = document.getElementById('reportMessage').value.trim();
+            var errorDiv = document.getElementById('reportError');
+            var successDiv = document.getElementById('reportSuccess');
+            var btn = document.getElementById('submitReportBtn');
+            
+            errorDiv.classList.add('d-none');
+            successDiv.classList.add('d-none');
+            
+            if (message.length < 10) {
+                errorDiv.textContent = 'Please provide at least 10 characters describing the issue.';
+                errorDiv.classList.remove('d-none');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="btn-loader-spinner"></span> Submitting...';
+            
+            var formData = new FormData();
+            formData.append('reported_type', type);
+            formData.append('reported_id', id);
+            formData.append('message', message);
+            
+            fetch('/report/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    errorDiv.textContent = data.error;
+                    errorDiv.classList.remove('d-none');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-flag"></i> Submit Report';
+                } else {
+                    successDiv.textContent = data.message;
+                    successDiv.classList.remove('d-none');
+                    setTimeout(function() {
+                        bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+                    }, 2000);
+                }
+            })
+            .catch(function(err) {
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.classList.remove('d-none');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-flag"></i> Submit Report';
+            });
+        }
         
         <?php if (isset($currentUser) && $currentUser): ?>
         // Notification and Chat polling

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Notification.php';
-require_once __DIR__ . '/../../config/helpers.php';
+require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/csrf.php';
 
 class NotificationController {
     private $notificationModel;

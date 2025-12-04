@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../models/Conversation.php';
 require_once __DIR__ . '/../models/Message.php';
 require_once __DIR__ . '/../models/Notification.php';
-require_once __DIR__ . '/../../config/helpers.php';
+require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/csrf.php';
 
 class ChatController {
     private $conversationModel;
@@ -68,6 +69,12 @@ class ChatController {
         $message = trim($_POST['message'] ?? '');
         if (empty($message)) {
             echo json_encode(['error' => 'Message cannot be empty']);
+            return;
+        }
+        
+        $existingMessages = $this->messageModel->getByConversationId($conversationId, 1);
+        if (empty($existingMessages) && $user['type'] !== 'employer') {
+            echo json_encode(['error' => 'Only employers can send the first message. Please wait for the employer to contact you.']);
             return;
         }
         
