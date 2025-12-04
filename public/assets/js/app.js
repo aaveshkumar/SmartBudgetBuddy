@@ -2,31 +2,54 @@
 
 // Button Loader Functions
 const addButtonLoader = (button) => {
-    if (button.querySelector('.btn-spinner')) return;
+    if (button.classList.contains('loading')) return;
+    
     const spinner = document.createElement('span');
     spinner.className = 'btn-spinner';
-    button.prepend(spinner);
+    spinner.innerHTML = '';
+    
+    button.classList.add('loading');
     button.disabled = true;
+    button.prepend(spinner);
+    
+    // Store original text
+    if (!button.dataset.originalText) {
+        button.dataset.originalText = button.textContent.trim();
+    }
 };
 
 const removeButtonLoader = (button) => {
+    button.classList.remove('loading');
+    button.disabled = false;
     const spinner = button.querySelector('.btn-spinner');
     if (spinner) spinner.remove();
-    button.disabled = false;
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Add loader to form submit buttons
+    // Add loader to ALL form submit buttons - login, register, updates, etc
     document.querySelectorAll('form').forEach(form => {
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            form.addEventListener('submit', function(e) {
-                const isDelete = submitBtn.classList.contains('btn-danger') || submitBtn.classList.contains('btn-sm');
-                if (!isDelete) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                // Don't add loader for delete forms (btn-danger or small buttons used for delete)
+                const isDelete = submitBtn.classList.contains('btn-danger');
+                const isSmallDeleteBtn = submitBtn.classList.contains('btn-sm') && this.action.includes('/delete');
+                
+                if (!isDelete && !isSmallDeleteBtn) {
                     addButtonLoader(submitBtn);
                 }
-            });
-        }
+            }
+        });
+    });
+    
+    // Also add click listeners to buttons for immediate visual feedback
+    document.querySelectorAll('button[type="submit"]:not(.btn-sm):not(.btn-danger)').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Add loader immediately on click
+            if (!this.classList.contains('loading')) {
+                addButtonLoader(this);
+            }
+        });
     });
     
     // Auto-hide alerts after 5 seconds
