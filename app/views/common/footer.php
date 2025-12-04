@@ -11,8 +11,12 @@
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="/jobs" class="text-white-50">Browse Jobs</a></li>
-                        <li><a href="/register" class="text-white-50">Register</a></li>
-                        <li><a href="/login" class="text-white-50">Login</a></li>
+                        <?php if (isset($currentUser) && $currentUser): ?>
+                            <li><a href="/logout" class="text-white-50">Logout</a></li>
+                        <?php else: ?>
+                            <li><a href="/register" class="text-white-50">Register</a></li>
+                            <li><a href="/login" class="text-white-50">Login</a></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
                 <div class="col-md-4">
