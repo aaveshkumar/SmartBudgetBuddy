@@ -10,6 +10,22 @@ A comprehensive job portal application built with Core PHP featuring three user 
 - **PHP Version**: 8.2
 - **Server**: Running on port 5000
 
+## Recent Changes (December 4, 2025)
+- ✅ **CRITICAL FIX: Database Setup Complete** - All tables created and operational
+  - Executed `php scripts/setup_database.php` to create core tables (users, jobs, categories, applications, etc.)
+  - Executed `php scripts/add_jobseeker_profiles.php` to create profile tables (profiles, work_experiences, education, skills, certifications, languages, projects)
+  - Added sample profile data for 2 job seekers with skills
+- ✅ **Created Missing View File: `app/views/admin/candidate_profile.php`**
+  - Fixed 404 error when accessing /admin/candidates/{id}
+  - Complete profile display with all sections: personal info, work experience, education, skills, certifications, languages, projects
+  - Resume download link and profile picture display
+  - Proper error handling for incomplete profiles
+- ✅ **Implemented Action-Specific Button Loaders**
+  - Added intelligent loader text detection: Searching, Deleting, Saving, Updating, Loading, Approving, Rejecting, Applying, Posting, etc.
+  - Spinning CSS animation with proper styling
+  - Automatic loader restoration after page load
+  - Works on all form submissions across the entire application
+
 ## Recent Changes (October 31, 2025)
 - ✅ **Implemented comprehensive job seeker profile system** with advanced features
   - Created 7 new database tables: profiles, work_experiences, education, skills, certifications, languages, projects
