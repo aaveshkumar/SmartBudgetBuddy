@@ -19,15 +19,30 @@ require __DIR__ . '/../common/header.php';
         <div class="alert alert-info">
             <h5><i class="fas fa-bell"></i> Send Selection Notification to <?= htmlspecialchars($notification['candidate_name']) ?></h5>
             <p class="mb-2">Click below to notify the candidate about their selection:</p>
-            <a href="<?= $notification['email_link'] ?>" class="btn btn-primary me-2" target="_blank">
+            <button type="button" class="btn btn-primary me-2" onclick="sendSelectionEmail()">
                 <i class="fas fa-envelope"></i> Send Email Notification
-            </a>
-            <?php if ($notification['whatsapp_link']): ?>
-            <a href="<?= $notification['whatsapp_link'] ?>" class="btn btn-success" target="_blank">
+            </button>
+            <?php if ($notification['candidate_phone']): ?>
+            <button type="button" class="btn btn-success" onclick="sendSelectionWhatsApp()">
                 <i class="fab fa-whatsapp"></i> Send WhatsApp Notification
-            </a>
+            </button>
             <?php endif; ?>
         </div>
+        <script>
+            function sendSelectionEmail() {
+                var email = <?= json_encode($notification['candidate_email']) ?>;
+                var subject = <?= json_encode($notification['email_subject']) ?>;
+                var body = <?= json_encode($notification['email_body']) ?>;
+                var mailtoLink = 'mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+                window.location.href = mailtoLink;
+            }
+            function sendSelectionWhatsApp() {
+                var phone = <?= json_encode($notification['candidate_phone']) ?>;
+                var message = <?= json_encode($notification['whatsapp_message']) ?>;
+                var whatsappLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+                window.open(whatsappLink, '_blank');
+            }
+        </script>
     <?php endif; ?>
     
     <div class="card mb-4">
@@ -58,18 +73,13 @@ require __DIR__ . '/../common/header.php';
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($applications as $application): ?>
+                            <?php foreach ($applications as $index => $application): ?>
                             <?php
                                 $phone = $application['applicant_phone'] ?? '';
                                 $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
                                 $email = $application['applicant_email'];
                                 $name = $application['applicant_name'];
                                 $jobTitle = $job['title'];
-                                
-                                $emailSubject = rawurlencode("Regarding your application for $jobTitle");
-                                $emailBody = rawurlencode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards");
-                                
-                                $whatsappMessage = rawurlencode("Hello $name, I'm reaching out regarding your application for the position of $jobTitle.");
                             ?>
                             <tr>
                                 <td><?= htmlspecialchars($name) ?></td>
@@ -82,30 +92,43 @@ require __DIR__ . '/../common/header.php';
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="mailto:<?= htmlspecialchars($email) ?>?subject=<?= $emailSubject ?>&body=<?= $emailBody ?>" class="btn btn-sm btn-info text-white" title="Send Email">
+                                    <button type="button" class="btn btn-sm btn-info text-white" onclick="sendEmail<?= $index ?>()" title="Send Email">
                                         <i class="fas fa-envelope"></i> Email
-                                    </a>
+                                    </button>
                                     <?php if ($cleanPhone): ?>
-                                    <a href="https://wa.me/<?= $cleanPhone ?>?text=<?= $whatsappMessage ?>" class="btn btn-sm btn-success mt-1" target="_blank" title="Send WhatsApp">
+                                    <button type="button" class="btn btn-sm btn-success mt-1" onclick="sendWhatsApp<?= $index ?>()" title="Send WhatsApp">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
-                                    </a>
+                                    </button>
                                     <?php else: ?>
                                     <button class="btn btn-sm btn-secondary mt-1" disabled title="No phone number">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </button>
                                     <?php endif; ?>
+                                    <script>
+                                        function sendEmail<?= $index ?>() {
+                                            var email = <?= json_encode($email) ?>;
+                                            var subject = <?= json_encode("Regarding your application for $jobTitle") ?>;
+                                            var body = <?= json_encode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards") ?>;
+                                            var mailtoLink = 'mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+                                            window.location.href = mailtoLink;
+                                        }
+                                        <?php if ($cleanPhone): ?>
+                                        function sendWhatsApp<?= $index ?>() {
+                                            var phone = <?= json_encode($cleanPhone) ?>;
+                                            var message = <?= json_encode("Hello $name, I'm reaching out regarding your application for the position of $jobTitle.") ?>;
+                                            var whatsappLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+                                            window.open(whatsappLink, '_blank');
+                                        }
+                                        <?php endif; ?>
+                                    </script>
                                 </td>
                                 <td>
-                                    <?php if (isset($application['status']) && $application['status'] === 'selected'): ?>
-                                        <span class="badge bg-success"><i class="fas fa-check"></i> Selected</span>
-                                    <?php else: ?>
-                                        <form action="/employer/jobs/<?= $job['id'] ?>/applications/<?= $application['id'] ?>/select" method="POST" style="display:inline;">
-                                            <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
-                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Select this candidate? An automated message will be sent to notify them.')">
-                                                <i class="fas fa-user-check"></i> Select
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
+                                    <form action="/employer/jobs/<?= $job['id'] ?>/applications/<?= $application['id'] ?>/select" method="POST" style="display:inline;">
+                                        <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
+                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Select this candidate? You will be prompted to send them a notification.')">
+                                            <i class="fas fa-user-check"></i> Select
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
