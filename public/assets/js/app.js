@@ -1,55 +1,67 @@
 // ConnectWith9 Job Portal JavaScript
 
-// Button Loader Functions
-const addButtonLoader = (button) => {
-    if (button.classList.contains('loading')) return;
-    
-    const spinner = document.createElement('span');
-    spinner.className = 'btn-spinner';
-    spinner.innerHTML = '';
-    
-    button.classList.add('loading');
-    button.disabled = true;
-    button.prepend(spinner);
-    
-    // Store original text
-    if (!button.dataset.originalText) {
-        button.dataset.originalText = button.textContent.trim();
+// Global loader functions
+const showPageLoader = () => {
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+        loader.classList.add('active');
     }
 };
 
-const removeButtonLoader = (button) => {
-    button.classList.remove('loading');
-    button.disabled = false;
-    const spinner = button.querySelector('.btn-spinner');
-    if (spinner) spinner.remove();
+const hidePageLoader = () => {
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+        loader.classList.remove('active');
+    }
+};
+
+// Add loader to button
+const addButtonLoader = (button) => {
+    if (!button || button.querySelector('.btn-spinner')) return;
+    const spinner = document.createElement('span');
+    spinner.className = 'btn-spinner';
+    button.prepend(spinner);
+    button.disabled = true;
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Add loader to ALL form submit buttons - login, register, updates, etc
+    // Show loader on ALL form submissions (login, register, updates, etc)
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                // Don't add loader for delete forms (btn-danger or small buttons used for delete)
-                const isDelete = submitBtn.classList.contains('btn-danger');
-                const isSmallDeleteBtn = submitBtn.classList.contains('btn-sm') && this.action.includes('/delete');
-                
-                if (!isDelete && !isSmallDeleteBtn) {
-                    addButtonLoader(submitBtn);
-                }
+            const button = this.querySelector('button[type="submit"]');
+            
+            // Skip loader for delete confirmations
+            if (button && !button.classList.contains('btn-danger')) {
+                addButtonLoader(button);
+                showPageLoader();
             }
         });
     });
     
-    // Also add click listeners to buttons for immediate visual feedback
-    document.querySelectorAll('button[type="submit"]:not(.btn-sm):not(.btn-danger)').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            // Add loader immediately on click
-            if (!this.classList.contains('loading')) {
-                addButtonLoader(this);
-            }
-        });
+    // Show loader on direct button clicks (for AJAX or other operations)
+    document.querySelectorAll('button').forEach(button => {
+        // Skip delete buttons, small buttons, and navigation buttons
+        if (!button.classList.contains('btn-danger') && 
+            !button.classList.contains('btn-sm') &&
+            button.type !== 'button') {
+            button.addEventListener('click', function(e) {
+                // Only show loader for submit buttons or buttons inside forms
+                if (this.type === 'submit' || this.closest('form')) {
+                    showPageLoader();
+                    addButtonLoader(this);
+                }
+            });
+        }
+    });
+    
+    // Show loader on navigation links (but not anchors)
+    document.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.includes('/delete')) {
+            link.addEventListener('click', function() {
+                showPageLoader();
+            });
+        }
     });
     
     // Auto-hide alerts after 5 seconds

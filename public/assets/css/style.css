@@ -73,16 +73,85 @@ footer a {
     transition: opacity 0.3s ease;
 }
 
+/* Page Loading Overlay */
+#pageLoader {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+}
+
+#pageLoader.active {
+    display: flex;
+}
+
+#pageLoader .loader-container {
+    text-align: center;
+}
+
+#pageLoader .spinner-ring {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+#pageLoader .spinner-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 5px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: var(--primary-color) transparent transparent transparent;
+}
+
+#pageLoader .spinner-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+}
+
+#pageLoader .spinner-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+#pageLoader .spinner-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+}
+
+@keyframes spin-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#pageLoader .loader-text {
+    margin-top: 20px;
+    font-size: 16px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 /* Button Loader Spinner */
 .btn-spinner {
     display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    border-top: 3px solid white;
-    border-right: 3px solid white;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
     border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: spin 0.8s linear infinite;
     margin-right: 8px;
     vertical-align: middle;
 }
@@ -93,13 +162,7 @@ footer a {
 }
 
 .btn:disabled {
-    opacity: 0.8 !important;
-    cursor: not-allowed !important;
-}
-
-.btn.loading {
-    position: relative;
-    min-width: 120px;
+    pointer-events: none;
 }
 
 footer a:hover {
