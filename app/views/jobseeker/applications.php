@@ -33,7 +33,7 @@ require __DIR__ . '/../common/header.php';
             </div>
             <?php endforeach; ?>
             
-            <?php if ($pagination['total_pages'] > 1): ?>
+            <?php if (isset($pagination) && $pagination['total_pages'] > 1): ?>
             <div class="col-12">
                 <nav>
                     <ul class="pagination justify-content-center">
