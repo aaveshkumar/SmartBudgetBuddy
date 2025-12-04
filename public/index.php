@@ -141,6 +141,8 @@ try {
             $controller->deleteUser($m[1]);
         } elseif ($action === 'jobs') {
             $controller->jobs();
+        } elseif (preg_match('/^jobs\/(\d+)$/', $action, $m)) {
+            $controller->viewJob($m[1]);
         } elseif (preg_match('/^jobs\/(\d+)\/approve$/', $action, $m)) {
             $controller->approveJob($m[1]);
         } elseif (preg_match('/^jobs\/(\d+)\/reject$/', $action, $m)) {

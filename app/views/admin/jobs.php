@@ -54,7 +54,7 @@ require __DIR__ . '/../common/header.php';
                             </td>
                             <td><?= formatDate($job['created_at']) ?></td>
                             <td>
-                                <a href="/jobs/<?= $job['id'] ?>" class="btn btn-sm btn-info" target="_blank">View</a>
+                                <a href="/admin/jobs/<?= $job['id'] ?>" class="btn btn-sm btn-info">View</a>
                                 <?php if ($job['status'] === 'Pending'): ?>
                                     <form action="/admin/jobs/<?= $job['id'] ?>/approve" method="POST" class="d-inline">
                                         <?= csrfField() ?>

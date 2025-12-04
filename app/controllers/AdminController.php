@@ -226,6 +226,18 @@ class AdminController {
         require __DIR__ . '/../views/admin/jobs.php';
     }
     
+    // View single job (admin can view regardless of status)
+    public function viewJob($id) {
+        $job = $this->jobModel->findById($id);
+        
+        if (!$job) {
+            setFlash('error', 'Job not found');
+            redirect('/admin/jobs');
+        }
+        
+        require __DIR__ . '/../views/admin/view_job.php';
+    }
+    
     // Approve job
     public function approveJob($id) {
         checkCSRF();
