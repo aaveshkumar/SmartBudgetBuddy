@@ -197,6 +197,10 @@ try {
             $controller->candidates();
         } elseif (preg_match('/^candidates\/(\d+)$/', $action, $m)) {
             $controller->viewCandidate($m[1]);
+        } elseif ($action === 'notifications') {
+            $controller->notifications();
+        } elseif ($action === 'notifications/send' && $requestMethod === 'POST') {
+            $controller->sendSystemNotification();
         }
         exit;
     }

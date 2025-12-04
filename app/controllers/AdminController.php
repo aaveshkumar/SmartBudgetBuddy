@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../app/models/User.php';
 require_once __DIR__ . '/../../app/models/Job.php';
 require_once __DIR__ . '/../../app/models/Application.php';
 require_once __DIR__ . '/../../app/models/JobSeekerProfile.php';
+require_once __DIR__ . '/../../app/models/Notification.php';
 
 class AdminController {
     private $userModel;
@@ -243,7 +244,20 @@ class AdminController {
         checkCSRF();
         
         if ($this->jobModel->update($id, ['status' => JOB_STATUS_APPROVED])) {
-            setFlash('success', 'Job approved successfully');
+            // Get job details for notification
+            $job = $this->jobModel->findById($id);
+            if ($job) {
+                // Send notification to all job seekers about the new job
+                $notificationModel = new Notification();
+                $jobSeekers = $notificationModel->getJobSeekersByRole();
+                $employer = $this->userModel->findById($job['employer_id']);
+                $companyName = $employer ? $employer['name'] : 'A company';
+                
+                foreach ($jobSeekers as $jobSeekerId) {
+                    $notificationModel->notifyNewJob($jobSeekerId, $job['id'], $job['title'], $companyName);
+                }
+            }
+            setFlash('success', 'Job approved successfully. All job seekers have been notified.');
         } else {
             setFlash('error', 'Failed to approve job');
         }
@@ -275,5 +289,47 @@ class AdminController {
         }
         
         redirect('/admin/jobs');
+    }
+    
+    // Show system notifications page
+    public function notifications() {
+        $meta = generateMetaTags('System Notifications', 'Send notifications to users');
+        require __DIR__ . '/../views/admin/notifications.php';
+    }
+    
+    // Send system notification to employers
+    public function sendSystemNotification() {
+        checkCSRF();
+        
+        $title = sanitize($_POST['title'] ?? '');
+        $message = sanitize($_POST['message'] ?? '');
+        $targetRole = sanitize($_POST['target_role'] ?? 'employer');
+        
+        if (empty($title) || empty($message)) {
+            setFlash('error', 'Title and message are required');
+            redirect('/admin/notifications');
+        }
+        
+        $notificationModel = new Notification();
+        $count = 0;
+        
+        if ($targetRole === 'employer' || $targetRole === 'all') {
+            $employers = $notificationModel->getEmployersByRole();
+            foreach ($employers as $employerId) {
+                $notificationModel->notifySystemUpdate($employerId, $title, $message);
+                $count++;
+            }
+        }
+        
+        if ($targetRole === 'jobseeker' || $targetRole === 'all') {
+            $jobSeekers = $notificationModel->getJobSeekersByRole();
+            foreach ($jobSeekers as $jobSeekerId) {
+                $notificationModel->notifySystemUpdate($jobSeekerId, $title, $message);
+                $count++;
+            }
+        }
+        
+        setFlash('success', "System notification sent to $count users successfully!");
+        redirect('/admin/notifications');
     }
 }
