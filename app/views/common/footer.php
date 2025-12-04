@@ -67,29 +67,25 @@
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    transition: opacity 0.2s ease;
                 }
                 .page-loader-content {
                     text-align: center;
-                    background: rgba(255, 255, 255, 0.95);
-                    padding: 30px 40px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
                 }
                 .page-loader-spinner {
                     width: 50px;
                     height: 50px;
-                    border: 4px solid #e9ecef;
+                    border: 4px solid rgba(13, 110, 253, 0.2);
                     border-top-color: #0d6efd;
                     border-radius: 50%;
                     animation: spinLoader 0.8s linear infinite;
-                    margin: 0 auto 15px;
+                    margin: 0 auto 10px;
                 }
                 .page-loader-text {
                     color: #0d6efd;
-                    font-size: 16px;
-                    font-weight: 500;
+                    font-size: 14px;
+                    font-weight: 600;
                     margin: 0;
+                    text-shadow: 0 0 10px white, 0 0 20px white, 0 0 30px white;
                 }
             `;
             document.head.appendChild(style);
