@@ -33,7 +33,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
     <script>
-        // Inject animation styles for button loader
+        // Inject animation styles for button loader and page loader
         if (!document.getElementById('spinner-styles')) {
             var style = document.createElement('style');
             style.id = 'spinner-styles';
@@ -53,6 +53,39 @@
                     animation: spinLoader 0.8s linear infinite;
                     margin-right: 10px;
                     vertical-align: middle;
+                }
+                
+                /* Page Loader Overlay Styles */
+                .page-loader-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(255, 255, 255, 0.95);
+                    z-index: 9999;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    transition: opacity 0.2s ease;
+                }
+                .page-loader-content {
+                    text-align: center;
+                }
+                .page-loader-spinner {
+                    width: 50px;
+                    height: 50px;
+                    border: 4px solid #e9ecef;
+                    border-top-color: #0d6efd;
+                    border-radius: 50%;
+                    animation: spinLoader 0.8s linear infinite;
+                    margin: 0 auto 15px;
+                }
+                .page-loader-text {
+                    color: #0d6efd;
+                    font-size: 16px;
+                    font-weight: 500;
+                    margin: 0;
                 }
             `;
             document.head.appendChild(style);
@@ -116,6 +149,70 @@
             btn.appendChild(document.createTextNode(' ' + loaderText));
             btn.disabled = true;
         }, true);
+        
+        // Page loader for navigation links
+        (function() {
+            var pageLoader = document.getElementById('pageLoader');
+            var loaderText = pageLoader ? pageLoader.querySelector('.page-loader-text') : null;
+            
+            function showPageLoader(text) {
+                if (pageLoader) {
+                    if (loaderText) loaderText.textContent = text || 'Loading...';
+                    pageLoader.style.display = 'flex';
+                }
+            }
+            
+            function hidePageLoader() {
+                if (pageLoader) {
+                    pageLoader.style.display = 'none';
+                }
+            }
+            
+            // Hide loader when page loads (for back/forward navigation)
+            window.addEventListener('pageshow', hidePageLoader);
+            
+            // Get loader text based on link text
+            function getNavLoaderText(linkText) {
+                var text = linkText.toLowerCase().trim();
+                if (text.includes('dashboard')) return 'Loading Dashboard...';
+                if (text.includes('jobs') || text.includes('browse jobs')) return 'Loading Jobs...';
+                if (text.includes('candidates')) return 'Loading Candidates...';
+                if (text.includes('profile')) return 'Loading Profile...';
+                if (text.includes('applications')) return 'Loading Applications...';
+                if (text.includes('login')) return 'Loading...';
+                if (text.includes('register')) return 'Loading...';
+                if (text.includes('logout')) return 'Logging out...';
+                if (text.includes('home')) return 'Loading...';
+                if (text.includes('post job')) return 'Loading...';
+                if (text.includes('users')) return 'Loading Users...';
+                return 'Loading...';
+            }
+            
+            // Add click handler to navbar and footer links
+            document.addEventListener('click', function(e) {
+                var link = e.target.closest('a');
+                
+                if (!link) return;
+                
+                // Skip if it's a dropdown toggle, hash link, or external link
+                if (link.getAttribute('data-bs-toggle') === 'dropdown') return;
+                if (link.getAttribute('href') === '#') return;
+                if (link.getAttribute('target') === '_blank') return;
+                
+                var href = link.getAttribute('href');
+                if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+                
+                // Check if link is in navbar or footer quick links
+                var isNavLink = link.closest('.navbar') !== null;
+                var isFooterLink = link.closest('footer') !== null;
+                var isDropdownItem = link.classList.contains('dropdown-item');
+                
+                if (isNavLink || isFooterLink || isDropdownItem) {
+                    var linkText = link.textContent.trim();
+                    showPageLoader(getNavLoaderText(linkText));
+                }
+            }, true);
+        })();
     </script>
 </body>
 </html>

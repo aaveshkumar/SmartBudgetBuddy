@@ -27,6 +27,14 @@ $currentUser = getCurrentUser();
     <?php endif; ?>
 </head>
 <body>
+    <!-- Page Loader Overlay -->
+    <div id="pageLoader" class="page-loader-overlay" style="display: none;">
+        <div class="page-loader-content">
+            <div class="page-loader-spinner"></div>
+            <p class="page-loader-text">Loading...</p>
+        </div>
+    </div>
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="/">
