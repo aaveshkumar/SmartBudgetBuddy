@@ -61,6 +61,23 @@
             console.log('Spinner styles injected');
         }
         
+        // Store button states to restore later
+        var buttonStates = {};
+        
+        // Function to restore button after page load
+        function restoreButtons() {
+            console.log('Restoring buttons after page load');
+            for (var btnId in buttonStates) {
+                var btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.innerHTML = buttonStates[btnId];
+                    btn.disabled = false;
+                    console.log('Restored button:', btnId);
+                }
+            }
+            buttonStates = {};
+        }
+        
         // Function to add loader to button
         function addLoaderToButton(btn) {
             if (!btn) return;
@@ -70,9 +87,11 @@
             }
             
             console.log('Adding loader to button: ', btn.textContent);
-            // Save original text
-            var originalText = btn.textContent;
-            btn.dataset.originalText = originalText;
+            
+            // Save button state if it has an id
+            if (btn.id) {
+                buttonStates[btn.id] = btn.innerHTML;
+            }
             
             // Create spinner
             var spinner = document.createElement('span');
@@ -87,10 +106,44 @@
             console.log('Loader added successfully to button with text');
         }
         
+        // Restore buttons when page is fully loaded
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded, restoring buttons');
+            restoreButtons();
+        });
+        
+        // Also restore on beforeunload (when form will submit)
+        window.addEventListener('beforeunload', function() {
+            console.log('Page about to unload');
+            // This doesn't restore, but ensures clean state
+        });
+        
         // Add loader when submit button is CLICKED
         document.addEventListener('click', function(e) {
             if (e.target && e.target.type === 'submit' && !e.target.classList.contains('btn-danger')) {
                 console.log('Submit button clicked:', e.target);
+                
+                // Validate required fields first
+                var form = e.target.closest('form');
+                if (form) {
+                    var requiredFields = form.querySelectorAll('[required]');
+                    var isValid = true;
+                    
+                    requiredFields.forEach(function(field) {
+                        if (!field.value || !field.value.trim()) {
+                            isValid = false;
+                            console.log('Field is empty:', field.name);
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        console.log('Form validation failed - not submitting');
+                        alert('Please fill in all required fields');
+                        return false;
+                    }
+                }
+                
+                // If validation passes, show loader
                 addLoaderToButton(e.target);
             }
         }, true);
