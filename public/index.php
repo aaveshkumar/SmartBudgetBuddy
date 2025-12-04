@@ -175,6 +175,8 @@ try {
             }
         } elseif (preg_match('/^jobs\/(\d+)\/applications$/', $action, $m)) {
             $controller->applications($m[1]);
+        } elseif (preg_match('/^jobs\/(\d+)\/applications\/(\d+)\/select$/', $action, $m)) {
+            $controller->selectCandidate($m[1], $m[2]);
         } elseif (preg_match('/^jobs\/(\d+)\/delete$/', $action, $m)) {
             $controller->deleteJob($m[1]);
         } elseif ($action === 'candidates') {

@@ -41,9 +41,11 @@ class Application {
     
     // Get applications for a job
     public function getByJob($jobId, $limit = null, $offset = 0) {
-        $sql = "SELECT a.*, u.name as applicant_name, u.email as applicant_email
+        $sql = "SELECT a.*, u.name as applicant_name, u.email as applicant_email,
+                jp.phone as applicant_phone
                 FROM applications a
                 JOIN users u ON a.user_id = u.id
+                LEFT JOIN jobseeker_profiles jp ON a.user_id = jp.user_id
                 WHERE a.job_id = :job_id
                 ORDER BY a.applied_at DESC";
         
@@ -113,6 +115,26 @@ class Application {
         $sql = "DELETE FROM applications WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([':id' => $id]);
+    }
+    
+    // Find application by ID
+    public function findById($id) {
+        $sql = "SELECT a.*, u.name as applicant_name, u.email as applicant_email,
+                jp.phone as applicant_phone
+                FROM applications a
+                JOIN users u ON a.user_id = u.id
+                LEFT JOIN jobseeker_profiles jp ON a.user_id = jp.user_id
+                WHERE a.id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch();
+    }
+    
+    // Update application status
+    public function updateStatus($id, $status) {
+        $sql = "UPDATE applications SET status = :status WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([':id' => $id, ':status' => $status]);
     }
     
     // Get all applications for employer

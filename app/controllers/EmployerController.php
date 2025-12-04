@@ -227,4 +227,59 @@ class EmployerController {
         
         redirect('/employer/jobs');
     }
+    
+    // Select candidate for a job
+    public function selectCandidate($jobId, $applicationId) {
+        checkCSRF();
+        
+        $user = getCurrentUser();
+        $job = $this->jobModel->findById($jobId);
+        
+        if (!$job || $job['employer_id'] != $user['id']) {
+            setFlash('error', ERROR_UNAUTHORIZED);
+            redirect('/employer/dashboard');
+        }
+        
+        $application = $this->applicationModel->findById($applicationId);
+        
+        if (!$application || $application['job_id'] != $jobId) {
+            setFlash('error', 'Application not found');
+            redirect("/employer/jobs/$jobId/applications");
+        }
+        
+        // Update application status
+        if ($this->applicationModel->updateStatus($applicationId, 'selected')) {
+            // Prepare email and WhatsApp notification details
+            $candidateName = $application['applicant_name'];
+            $candidateEmail = $application['applicant_email'];
+            $candidatePhone = $application['applicant_phone'] ?? '';
+            $jobTitle = $job['title'];
+            $companyName = $user['name'];
+            
+            // Clean phone number for WhatsApp
+            $cleanPhone = preg_replace('/[^0-9]/', '', $candidatePhone);
+            
+            // Create mailto link for automated email
+            $emailSubject = rawurlencode("Congratulations! You have been selected for $jobTitle");
+            $emailBody = rawurlencode("Dear $candidateName,\n\nCongratulations! We are pleased to inform you that you have been selected for the position of $jobTitle at $companyName.\n\nWe will contact you shortly with further details about the next steps.\n\nBest regards,\n$companyName");
+            
+            // Create WhatsApp message
+            $whatsappMessage = rawurlencode("Congratulations $candidateName! You have been selected for the position of $jobTitle at $companyName. We will contact you shortly with further details.");
+            
+            // Store notification links in session for the view
+            $_SESSION['selection_notification'] = [
+                'candidate_name' => $candidateName,
+                'candidate_email' => $candidateEmail,
+                'candidate_phone' => $cleanPhone,
+                'email_link' => "mailto:$candidateEmail?subject=$emailSubject&body=$emailBody",
+                'whatsapp_link' => $cleanPhone ? "https://wa.me/$cleanPhone?text=$whatsappMessage" : null
+            ];
+            
+            setFlash('success', "Candidate $candidateName has been selected! Please send them a notification using the buttons below.");
+        } else {
+            setFlash('error', 'Failed to update application status');
+        }
+        
+        redirect("/employer/jobs/$jobId/applications");
+    }
 }
