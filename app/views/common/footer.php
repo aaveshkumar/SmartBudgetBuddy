@@ -32,5 +32,24 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= asset('js/app.js') ?>"></script>
+    <script>
+        // Add loader to all submit buttons when form is submitted
+        document.addEventListener('submit', function(e) {
+            var btn = e.target.querySelector('button[type="submit"]');
+            if (btn && !btn.classList.contains('btn-danger')) {
+                // Create spinner
+                var spinner = document.createElement('span');
+                spinner.className = 'btn-spinner';
+                spinner.innerHTML = '';
+                // Insert at beginning of button
+                if (btn.firstChild) {
+                    btn.insertBefore(spinner, btn.firstChild);
+                } else {
+                    btn.appendChild(spinner);
+                }
+                btn.disabled = true;
+            }
+        }, true);
+    </script>
 </body>
 </html>

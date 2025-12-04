@@ -9,7 +9,8 @@ const addButtonLoader = (button) => {
     button.disabled = true;
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize button loaders function
+const initButtonLoaders = () => {
     // Add loader to form submit buttons (database calls only)
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -21,8 +22,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Auto-hide alerts after 5 seconds
+};
+
+// Run when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        initButtonLoaders();
+        setupAutoHideAlerts();
+        setupDeleteConfirmation();
+        setupJobSearch();
+        setupFormValidation();
+        setupFileValidation();
+        setupSmoothScroll();
+    });
+} else {
+    // DOM is already loaded
+    initButtonLoaders();
+    setupAutoHideAlerts();
+    setupDeleteConfirmation();
+    setupJobSearch();
+    setupFormValidation();
+    setupFileValidation();
+    setupSmoothScroll();
+}
+
+// Auto-hide alerts after 5 seconds
+const setupAutoHideAlerts = () => {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -31,8 +56,10 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => alert.remove(), 500);
         }, 5000);
     });
-    
-    // Confirm delete actions
+};
+
+// Confirm delete actions
+const setupDeleteConfirmation = () => {
     const deleteForms = document.querySelectorAll('form[onsubmit*="confirm"]');
     deleteForms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -41,8 +68,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Job search autocomplete (if search input exists)
+};
+
+// Job search autocomplete (if search input exists)
+const setupJobSearch = () => {
     const searchInput = document.querySelector('input[name="search"]');
     if (searchInput && window.location.pathname.includes('jobs')) {
         let searchTimeout;
@@ -57,15 +86,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch(`/api/jobs/search?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(data => {
-                        // You can implement autocomplete dropdown here
                         console.log('Search results:', data);
                     })
                     .catch(error => console.error('Search error:', error));
             }, 300);
         });
     }
-    
-    // Form validation
+};
+
+// Form validation
+const setupFormValidation = () => {
     const forms = document.querySelectorAll('form[action]');
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -104,8 +134,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // File upload validation
+};
+
+// File upload validation
+const setupFileValidation = () => {
     const fileInputs = document.querySelectorAll('input[type="file"]');
     fileInputs.forEach(input => {
         input.addEventListener('change', function(e) {
@@ -128,8 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Smooth scroll for anchor links
+};
+
+// Smooth scroll for anchor links
+const setupSmoothScroll = () => {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -142,4 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
+};
+
+// Log to verify script is loaded
+console.log('App.js loaded and initialized');
