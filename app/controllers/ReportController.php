@@ -19,6 +19,12 @@ class ReportController {
             return;
         }
         
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (!verifyCSRFToken($csrfToken)) {
+            echo json_encode(['error' => 'Security token expired. Please refresh the page and try again.']);
+            return;
+        }
+        
         if ($user['status'] !== 'active') {
             echo json_encode(['error' => 'Your account must be verified to report']);
             return;

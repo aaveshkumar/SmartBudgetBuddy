@@ -45,6 +45,7 @@
                 <div class="modal-body">
                     <input type="hidden" id="reportType" value="">
                     <input type="hidden" id="reportId" value="">
+                    <input type="hidden" id="reportCsrfToken" value="<?= getCSRFToken() ?>">
                     <div class="mb-3">
                         <label for="reportMessage" class="form-label">Why are you reporting this?</label>
                         <textarea class="form-control" id="reportMessage" rows="4" placeholder="Please describe the issue in detail (at least 10 characters)..." required></textarea>
@@ -329,6 +330,7 @@
             var type = document.getElementById('reportType').value;
             var id = document.getElementById('reportId').value;
             var message = document.getElementById('reportMessage').value.trim();
+            var csrfToken = document.getElementById('reportCsrfToken').value;
             var errorDiv = document.getElementById('reportError');
             var successDiv = document.getElementById('reportSuccess');
             var btn = document.getElementById('submitReportBtn');
@@ -349,12 +351,18 @@
             formData.append('reported_type', type);
             formData.append('reported_id', id);
             formData.append('message', message);
+            formData.append('csrf_token', csrfToken);
             
             fetch('/report/submit', {
                 method: 'POST',
                 body: formData
             })
-            .then(function(response) { return response.json(); })
+            .then(function(response) { 
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); 
+            })
             .then(function(data) {
                 if (data.error) {
                     errorDiv.textContent = data.error;
@@ -370,6 +378,7 @@
                 }
             })
             .catch(function(err) {
+                console.error('Report error:', err);
                 errorDiv.textContent = 'An error occurred. Please try again.';
                 errorDiv.classList.remove('d-none');
                 btn.disabled = false;

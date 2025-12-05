@@ -177,3 +177,23 @@ footer a:hover {
 .sticky-top {
     z-index: 1020;
 }
+
+/* Navbar dropdown z-index fix */
+.navbar .dropdown-menu {
+    z-index: 9999;
+}
+
+.navbar .dropdown {
+    position: relative;
+}
+
+/* Ensure dropdowns appear above all content */
+.dropdown-menu.show {
+    z-index: 9999 !important;
+}
+
+/* Fix for notification and profile dropdowns */
+.notification-dropdown,
+#userDropdown + .dropdown-menu {
+    z-index: 9999 !important;
+}
