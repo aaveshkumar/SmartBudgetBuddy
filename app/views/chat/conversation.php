@@ -84,6 +84,13 @@ require __DIR__ . '/../common/header.php';
     height: 1rem;
     border-width: 2px;
 }
+.message-pending {
+    opacity: 0.7;
+}
+.message-error {
+    background: #f8d7da !important;
+    color: #842029 !important;
+}
 </style>
 
 <div class="container-fluid px-0">
@@ -258,26 +265,71 @@ function formatTime(dateString) {
            date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
-function addMessage(message, isSent) {
+function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+var tempMessageId = 0;
+var pendingMessages = {};
+
+function addMessage(message, isSent, isPending) {
     var div = document.createElement('div');
     div.className = 'message ' + (isSent ? 'message-sent' : 'message-received');
+    if (isPending) {
+        div.classList.add('message-pending');
+    }
     div.dataset.messageId = message.id;
     
     var content = document.createElement('div');
-    content.innerHTML = message.message.replace(/\n/g, '<br>');
+    content.innerHTML = escapeHtml(message.message).replace(/\n/g, '<br>');
     div.appendChild(content);
     
     var time = document.createElement('div');
     time.className = 'message-time';
     time.textContent = formatTime(message.created_at);
+    if (isPending) {
+        time.innerHTML += ' <i class="fas fa-clock" style="font-size: 0.6rem;"></i>';
+    }
     div.appendChild(time);
     
-    // Remove empty state if exists
     var emptyState = chatMessages.querySelector('.text-center.text-muted');
     if (emptyState) emptyState.remove();
     
     chatMessages.appendChild(div);
     scrollToBottom();
+    
+    return div;
+}
+
+function confirmMessage(tempId, realMessage) {
+    var pendingEl = document.querySelector('[data-message-id="temp_' + tempId + '"]');
+    if (pendingEl) {
+        pendingEl.dataset.messageId = realMessage.id;
+        pendingEl.classList.remove('message-pending');
+        var timeEl = pendingEl.querySelector('.message-time');
+        if (timeEl) {
+            timeEl.innerHTML = formatTime(realMessage.created_at);
+        }
+    }
+    delete pendingMessages[tempId];
+}
+
+function failMessage(tempId, errorMsg) {
+    var pendingEl = document.querySelector('[data-message-id="temp_' + tempId + '"]');
+    if (pendingEl) {
+        pendingEl.classList.remove('message-pending');
+        pendingEl.classList.add('message-error');
+        var timeEl = pendingEl.querySelector('.message-time');
+        if (timeEl) {
+            timeEl.innerHTML = '<i class="fas fa-exclamation-circle text-danger"></i> Failed to send';
+        }
+    }
+    delete pendingMessages[tempId];
+    if (errorMsg) {
+        alert(errorMsg);
+    }
 }
 
 function sendMessage(e) {
@@ -286,10 +338,22 @@ function sendMessage(e) {
     var message = messageInput.value.trim();
     if (!message) return;
     
-    var originalBtnHtml = sendBtn.innerHTML;
-    sendBtn.disabled = true;
-    sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-    messageInput.disabled = true;
+    tempMessageId++;
+    var currentTempId = tempMessageId;
+    
+    var tempMessage = {
+        id: 'temp_' + currentTempId,
+        message: message,
+        created_at: new Date().toISOString(),
+        sender_id: currentUserId
+    };
+    
+    pendingMessages[currentTempId] = message;
+    addMessage(tempMessage, true, true);
+    
+    messageInput.value = '';
+    messageInput.style.height = '38px';
+    messageInput.focus();
     
     var formData = new FormData();
     formData.append('message', message);
@@ -301,22 +365,15 @@ function sendMessage(e) {
     .then(function(response) { return response.json(); })
     .then(function(data) {
         if (data.success && data.message) {
-            addMessage(data.message, true);
-            lastMessageId = data.message.id;
-            messageInput.value = '';
-            messageInput.style.height = '38px';
+            confirmMessage(currentTempId, data.message);
+            lastMessageId = Math.max(lastMessageId, data.message.id);
         } else if (data.error) {
-            alert(data.error);
+            failMessage(currentTempId, data.error);
         }
     })
     .catch(function(err) {
         console.error('Send error:', err);
-    })
-    .finally(function() {
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = originalBtnHtml;
-        messageInput.disabled = false;
-        messageInput.focus();
+        failMessage(currentTempId, 'Failed to send message. Please try again.');
     });
 }
 
@@ -326,8 +383,11 @@ function pollMessages() {
         .then(function(data) {
             if (data.success && data.messages && data.messages.length > 0) {
                 data.messages.forEach(function(msg) {
-                    if (!document.querySelector('[data-message-id="' + msg.id + '"]')) {
-                        addMessage(msg, msg.sender_id == currentUserId);
+                    var existingMsg = document.querySelector('[data-message-id="' + msg.id + '"]');
+                    if (!existingMsg && msg.sender_id != currentUserId) {
+                        addMessage(msg, false, false);
+                        lastMessageId = Math.max(lastMessageId, msg.id);
+                    } else if (!existingMsg && msg.sender_id == currentUserId) {
                         lastMessageId = Math.max(lastMessageId, msg.id);
                     }
                 });
