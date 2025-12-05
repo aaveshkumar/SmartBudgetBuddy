@@ -127,6 +127,9 @@ require __DIR__ . '/../common/header.php';
                                                 <i class="fas fa-file-pdf"></i> Resume
                                             </a>
                                         <?php endif; ?>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="openReportModal('user', <?= $candidate['id'] ?>)">
+                                            <i class="fas fa-flag"></i> Report
+                                        </button>
                                     </div>
                                 </div>
                             </div>

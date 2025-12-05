@@ -22,7 +22,7 @@ class ChatController {
             redirect('/login');
         }
         
-        $conversations = $this->conversationModel->getByUserId($user['id'], $user['role']);
+        $conversations = $this->conversationModel->getByUserId($user['id'], $user['type']);
         $totalUnread = $this->conversationModel->getTotalUnreadCount($user['id']);
         
         $meta = generateMetaTags('Messages', 'Your conversations');
@@ -42,11 +42,11 @@ class ChatController {
         
         $conversation = $this->conversationModel->findById($id);
         $messages = $this->messageModel->getByConversationId($id);
-        $conversations = $this->conversationModel->getByUserId($user['id'], $user['role']);
+        $conversations = $this->conversationModel->getByUserId($user['id'], $user['type']);
         
         $this->messageModel->markAsRead($id, $user['id']);
         
-        $otherPartyName = $user['role'] === 'employer' ? $conversation['candidate_name'] : $conversation['employer_name'];
+        $otherPartyName = $user['type'] === 'employer' ? $conversation['candidate_name'] : $conversation['employer_name'];
         $currentUser = $user;
         
         $meta = generateMetaTags('Chat with ' . $otherPartyName, 'Conversation about ' . $conversation['job_title']);
@@ -74,7 +74,7 @@ class ChatController {
         }
         
         $existingMessages = $this->messageModel->getByConversationId($conversationId, 1);
-        if (empty($existingMessages) && $user['role'] !== 'employer') {
+        if (empty($existingMessages) && $user['type'] !== 'employer') {
             echo json_encode(['error' => 'Only employers can send the first message. Please wait for the employer to contact you.']);
             return;
         }
@@ -87,7 +87,7 @@ class ChatController {
         
         if ($messageId) {
             $conversation = $this->conversationModel->findById($conversationId);
-            $recipientId = $user['role'] === 'employer' ? $conversation['candidate_id'] : $conversation['employer_id'];
+            $recipientId = $user['type'] === 'employer' ? $conversation['candidate_id'] : $conversation['employer_id'];
             
             $this->notificationModel->notifyNewChatMessage($recipientId, $user['id'], $conversationId, $user['name']);
             
