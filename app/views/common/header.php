@@ -40,6 +40,43 @@ $currentUser = getCurrentUser();
             <a class="navbar-brand" href="/">
                 <i class="fas fa-briefcase"></i> ConnectWith9
             </a>
+            <?php if ($currentUser && $currentUser['type'] !== USER_TYPE_ADMIN): ?>
+            <!-- Mobile-only icons (outside hamburger) -->
+            <div class="d-flex align-items-center d-lg-none order-lg-2 me-2">
+                <!-- Chat Icon (Mobile) -->
+                <a class="nav-link position-relative text-white px-2" href="/chat" title="Messages">
+                    <i class="fas fa-comments"></i>
+                    <span id="chatBadgeMobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                        0
+                    </span>
+                </a>
+                
+                <!-- Notification Bell (Mobile) -->
+                <div class="dropdown">
+                    <a class="nav-link position-relative text-white px-2 dropdown-toggle" href="#" id="notificationDropdownMobile" role="button" data-bs-toggle="dropdown" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadgeMobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                            0
+                        </span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown" style="width: 280px; max-height: 350px; overflow-y: auto;">
+                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span><strong>Notifications</strong></span>
+                            <button type="button" class="btn btn-sm btn-link text-primary p-0" onclick="markAllNotificationsRead()">Mark all read</button>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div id="notificationListMobile">
+                            <div class="text-center py-3 text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-primary text-center" href="/notifications">View All Notifications</a>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -82,8 +119,8 @@ $currentUser = getCurrentUser();
                         <?php endif; ?>
                         
                         <?php if ($currentUser['type'] !== USER_TYPE_ADMIN): ?>
-                        <!-- Chat Icon -->
-                        <li class="nav-item">
+                        <!-- Chat Icon (Desktop only) -->
+                        <li class="nav-item d-none d-lg-block">
                             <a class="nav-link position-relative" href="/chat" title="Messages">
                                 <i class="fas fa-comments"></i>
                                 <span id="chatBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
@@ -92,30 +129,28 @@ $currentUser = getCurrentUser();
                             </a>
                         </li>
                         
-                        <!-- Notification Bell (for non-admin users) -->
-                        <li class="nav-item dropdown">
+                        <!-- Notification Bell (Desktop only) -->
+                        <li class="nav-item dropdown d-none d-lg-block">
                             <a class="nav-link position-relative dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" title="Notifications">
                                 <i class="fas fa-bell"></i>
                                 <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
                                     0
                                 </span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end notification-dropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
-                                <li class="dropdown-header d-flex justify-content-between align-items-center">
+                            <div class="dropdown-menu dropdown-menu-end notification-dropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                                <div class="dropdown-header d-flex justify-content-between align-items-center">
                                     <span><strong>Notifications</strong></span>
                                     <button type="button" class="btn btn-sm btn-link text-primary p-0" onclick="markAllNotificationsRead()">Mark all read</button>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <div id="notificationList">
-                                    <li class="text-center py-3 text-muted">
-                                        <i class="fas fa-spinner fa-spin"></i> Loading...
-                                    </li>
                                 </div>
-                                <li><hr class="dropdown-divider"></li>
-                                <li class="text-center">
-                                    <a class="dropdown-item text-primary" href="/notifications">View All Notifications</a>
-                                </li>
-                            </ul>
+                                <div class="dropdown-divider"></div>
+                                <div id="notificationList">
+                                    <div class="text-center py-3 text-muted">
+                                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-primary text-center" href="/notifications">View All Notifications</a>
+                            </div>
                         </li>
                         <?php else: ?>
                         <!-- Create Notification Icon (for admin only) -->

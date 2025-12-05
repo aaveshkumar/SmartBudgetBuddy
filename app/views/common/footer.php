@@ -390,30 +390,39 @@
         // Notification and Chat polling (for non-admin users only)
         (function() {
             var notificationBadge = document.getElementById('notificationBadge');
+            var notificationBadgeMobile = document.getElementById('notificationBadgeMobile');
             var chatBadge = document.getElementById('chatBadge');
+            var chatBadgeMobile = document.getElementById('chatBadgeMobile');
             var notificationList = document.getElementById('notificationList');
+            var notificationListMobile = document.getElementById('notificationListMobile');
             var lastPollTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
             
             function updateNotificationBadge(count) {
-                if (notificationBadge) {
-                    if (count > 0) {
-                        notificationBadge.textContent = count > 99 ? '99+' : count;
-                        notificationBadge.style.display = 'inline-block';
-                    } else {
-                        notificationBadge.style.display = 'none';
+                var badges = [notificationBadge, notificationBadgeMobile];
+                badges.forEach(function(badge) {
+                    if (badge) {
+                        if (count > 0) {
+                            badge.textContent = count > 99 ? '99+' : count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
                     }
-                }
+                });
             }
             
             function updateChatBadge(count) {
-                if (chatBadge) {
-                    if (count > 0) {
-                        chatBadge.textContent = count > 99 ? '99+' : count;
-                        chatBadge.style.display = 'inline-block';
-                    } else {
-                        chatBadge.style.display = 'none';
+                var badges = [chatBadge, chatBadgeMobile];
+                badges.forEach(function(badge) {
+                    if (badge) {
+                        if (count > 0) {
+                            badge.textContent = count > 99 ? '99+' : count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
                     }
-                }
+                });
             }
             
             function formatTimeAgo(dateString) {
@@ -439,28 +448,32 @@
             }
             
             function renderNotifications(notifications, unreadCount) {
-                if (!notificationList) return;
+                var lists = [notificationList, notificationListMobile];
                 
-                if (notifications.length === 0) {
-                    notificationList.innerHTML = '<li class="text-center py-3 text-muted">No notifications yet</li>';
-                    return;
-                }
-                
-                var html = '';
-                notifications.slice(0, 5).forEach(function(n) {
-                    var iconClass = getNotificationIcon(n.type);
-                    var readClass = n.is_read == 0 ? 'bg-light' : '';
-                    html += '<li class="dropdown-item ' + readClass + '" style="white-space: normal; padding: 10px 15px;">';
-                    html += '<div class="d-flex align-items-start">';
-                    html += '<i class="fas ' + iconClass + ' me-2 mt-1"></i>';
-                    html += '<div class="flex-grow-1">';
-                    html += '<strong style="font-size: 0.9rem;">' + escapeHtml(n.title) + '</strong>';
-                    html += '<p class="mb-0 text-muted" style="font-size: 0.8rem;">' + escapeHtml(n.message).substring(0, 50) + '...</p>';
-                    html += '<small class="text-muted">' + formatTimeAgo(n.created_at) + '</small>';
-                    html += '</div></div></li>';
+                lists.forEach(function(list) {
+                    if (!list) return;
+                    
+                    if (notifications.length === 0) {
+                        list.innerHTML = '<div class="text-center py-3 text-muted">No notifications yet</div>';
+                        return;
+                    }
+                    
+                    var html = '';
+                    notifications.slice(0, 5).forEach(function(n) {
+                        var iconClass = getNotificationIcon(n.type);
+                        var readClass = n.is_read == 0 ? 'bg-light' : '';
+                        html += '<div class="dropdown-item ' + readClass + '" style="white-space: normal; padding: 10px 15px; cursor: pointer;">';
+                        html += '<div class="d-flex align-items-start">';
+                        html += '<i class="fas ' + iconClass + ' me-2 mt-1"></i>';
+                        html += '<div class="flex-grow-1">';
+                        html += '<strong style="font-size: 0.9rem;">' + escapeHtml(n.title) + '</strong>';
+                        html += '<p class="mb-0 text-muted" style="font-size: 0.8rem;">' + escapeHtml(n.message).substring(0, 50) + '...</p>';
+                        html += '<small class="text-muted">' + formatTimeAgo(n.created_at) + '</small>';
+                        html += '</div></div></div>';
+                    });
+                    
+                    list.innerHTML = html;
                 });
-                
-                notificationList.innerHTML = html;
             }
             
             function escapeHtml(text) {
@@ -530,6 +543,27 @@
             };
         })();
         <?php endif; ?>
+        
+        // Enable click-outside-to-close for all modals (especially for mobile)
+        document.addEventListener('DOMContentLoaded', function() {
+            // All Bootstrap modals with default backdrop behavior will close on outside click
+            // This ensures modals are configured correctly
+            var modals = document.querySelectorAll('.modal');
+            modals.forEach(function(modal) {
+                // Remove any static backdrop that prevents clicking outside to close
+                modal.removeAttribute('data-bs-backdrop');
+                
+                // Add click handler on modal backdrop for mobile touch devices
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        var modalInstance = bootstrap.Modal.getInstance(modal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

@@ -10,6 +10,9 @@ function initSession() {
     }
 }
 
+// Include CSRF functions (must be after initSession is defined)
+require_once __DIR__ . '/csrf.php';
+
 // Sanitize input
 function sanitize($data) {
     return htmlspecialchars(strip_tags(trim($data)), ENT_QUOTES, 'UTF-8');
