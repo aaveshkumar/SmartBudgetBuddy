@@ -9,14 +9,30 @@ class Message {
     }
     
     public function create($data) {
-        $sql = "INSERT INTO conversation_messages (conversation_id, sender_id, message) 
-                VALUES (:conversation_id, :sender_id, :message)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            ':conversation_id' => $data['conversation_id'],
-            ':sender_id' => $data['sender_id'],
-            ':message' => $data['message']
-        ]);
+        $hasAttachment = !empty($data['attachment_path']);
+        
+        if ($hasAttachment) {
+            $sql = "INSERT INTO conversation_messages (conversation_id, sender_id, message, attachment_path, attachment_name, attachment_type) 
+                    VALUES (:conversation_id, :sender_id, :message, :attachment_path, :attachment_name, :attachment_type)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                ':conversation_id' => $data['conversation_id'],
+                ':sender_id' => $data['sender_id'],
+                ':message' => $data['message'] ?? '',
+                ':attachment_path' => $data['attachment_path'],
+                ':attachment_name' => $data['attachment_name'],
+                ':attachment_type' => $data['attachment_type']
+            ]);
+        } else {
+            $sql = "INSERT INTO conversation_messages (conversation_id, sender_id, message) 
+                    VALUES (:conversation_id, :sender_id, :message)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                ':conversation_id' => $data['conversation_id'],
+                ':sender_id' => $data['sender_id'],
+                ':message' => $data['message']
+            ]);
+        }
         return $this->db->lastInsertId();
     }
     

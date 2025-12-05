@@ -143,9 +143,11 @@ require __DIR__ . '/../common/header.php';
                                                 <i class="fas fa-file-pdf"></i> Resume
                                             </a>
                                         <?php endif; ?>
+                                        <?php if (getCurrentUser()['type'] !== USER_TYPE_ADMIN): ?>
                                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="openReportModal('user', <?= $candidate['id'] ?>)">
                                             <i class="fas fa-flag"></i> Report
                                         </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

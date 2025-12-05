@@ -68,14 +68,22 @@ class ChatController {
             return;
         }
         
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (!verifyCSRFToken($csrfToken)) {
+            echo json_encode(['error' => 'Invalid security token. Please refresh the page.']);
+            return;
+        }
+        
         if (!$this->conversationModel->canAccess($conversationId, $user['id'])) {
             echo json_encode(['error' => 'Access denied']);
             return;
         }
         
         $message = trim($_POST['message'] ?? '');
-        if (empty($message)) {
-            echo json_encode(['error' => 'Message cannot be empty']);
+        $hasAttachment = !empty($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK;
+        
+        if (empty($message) && !$hasAttachment) {
+            echo json_encode(['error' => 'Please enter a message or attach a file']);
             return;
         }
         
@@ -85,11 +93,29 @@ class ChatController {
             return;
         }
         
-        $messageId = $this->messageModel->create([
+        $attachmentData = [];
+        if ($hasAttachment) {
+            $uploadResult = $this->handleAttachmentUpload($_FILES['attachment']);
+            if ($uploadResult['error']) {
+                echo json_encode(['error' => $uploadResult['error']]);
+                return;
+            }
+            $attachmentData = $uploadResult;
+        }
+        
+        $messageData = [
             'conversation_id' => $conversationId,
             'sender_id' => $user['id'],
             'message' => $message
-        ]);
+        ];
+        
+        if (!empty($attachmentData)) {
+            $messageData['attachment_path'] = $attachmentData['path'];
+            $messageData['attachment_name'] = $attachmentData['name'];
+            $messageData['attachment_type'] = $attachmentData['type'];
+        }
+        
+        $messageId = $this->messageModel->create($messageData);
         
         if ($messageId) {
             $conversation = $this->conversationModel->findById($conversationId);
@@ -105,6 +131,66 @@ class ChatController {
         } else {
             echo json_encode(['error' => 'Failed to send message']);
         }
+    }
+    
+    private function handleAttachmentUpload($file) {
+        $allowedTypes = [
+            'image/jpeg' => ['jpg', 'jpeg'],
+            'image/png' => ['png'],
+            'image/gif' => ['gif'],
+            'image/webp' => ['webp'],
+            'application/pdf' => ['pdf'],
+            'application/msword' => ['doc'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => ['docx'],
+            'application/vnd.ms-excel' => ['xls'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => ['xlsx'],
+            'text/plain' => ['txt'],
+            'application/zip' => ['zip']
+        ];
+        
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip'];
+        
+        $maxSize = 10 * 1024 * 1024;
+        
+        if ($file['size'] > $maxSize) {
+            return ['error' => 'File size exceeds 10MB limit'];
+        }
+        
+        $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($fileExt, $allowedExtensions)) {
+            return ['error' => 'File extension not allowed. Allowed: JPG, PNG, GIF, PDF, DOC, DOCX, XLS, XLSX, TXT, ZIP'];
+        }
+        
+        $mimeType = mime_content_type($file['tmp_name']);
+        if (!isset($allowedTypes[$mimeType])) {
+            return ['error' => 'File type not allowed. Allowed: images, PDF, DOC, DOCX, XLS, XLSX, TXT, ZIP'];
+        }
+        
+        if (!in_array($fileExt, $allowedTypes[$mimeType])) {
+            return ['error' => 'File extension does not match file content'];
+        }
+        
+        $originalName = pathinfo($file['name'], PATHINFO_FILENAME);
+        $safeOriginalName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $originalName);
+        $newFileName = $safeOriginalName . '_' . uniqid() . '.' . $fileExt;
+        
+        $uploadDir = __DIR__ . '/../../public/uploads/chat_attachments/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $targetPath = $uploadDir . $newFileName;
+        
+        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            return [
+                'path' => '/uploads/chat_attachments/' . $newFileName,
+                'name' => $file['name'],
+                'type' => $mimeType,
+                'error' => null
+            ];
+        }
+        
+        return ['error' => 'Failed to upload file'];
     }
     
     public function getMessages($conversationId) {

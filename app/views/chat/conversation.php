@@ -159,7 +159,27 @@ require __DIR__ . '/../common/header.php';
                     <?php foreach ($messages as $message): ?>
                         <?php $isSent = $message['sender_id'] == $currentUser['id']; ?>
                         <div class="message <?= $isSent ? 'message-sent' : 'message-received' ?>" data-message-id="<?= $message['id'] ?>">
-                            <div><?= nl2br(htmlspecialchars($message['message'])) ?></div>
+                            <?php if (!empty($message['attachment_path'])): ?>
+                                <?php 
+                                $isImage = strpos($message['attachment_type'] ?? '', 'image/') === 0;
+                                $attachName = htmlspecialchars($message['attachment_name'] ?? 'Attachment');
+                                ?>
+                                <div class="message-attachment mb-2">
+                                    <?php if ($isImage): ?>
+                                        <a href="<?= htmlspecialchars($message['attachment_path']) ?>" target="_blank" class="d-block">
+                                            <img src="<?= htmlspecialchars($message['attachment_path']) ?>" alt="<?= $attachName ?>" class="img-fluid rounded" style="max-width: 200px; max-height: 200px;">
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= htmlspecialchars($message['attachment_path']) ?>" target="_blank" class="btn btn-sm <?= $isSent ? 'btn-light' : 'btn-outline-primary' ?> d-flex align-items-center" style="max-width: 200px;">
+                                            <i class="fas fa-file-download me-2"></i>
+                                            <span class="text-truncate"><?= $attachName ?></span>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($message['message'])): ?>
+                                <div><?= nl2br(htmlspecialchars($message['message'])) ?></div>
+                            <?php endif; ?>
                             <div class="message-time">
                                 <?= date('M j, g:i A', strtotime($message['created_at'])) ?>
                                 <?php if ($isSent && $message['is_read']): ?>
@@ -201,13 +221,28 @@ require __DIR__ . '/../common/header.php';
                         </div>
                     </div>
                     <?php endif; ?>
-                    <form id="messageForm" class="no-loader" onsubmit="sendMessage(event)">
+                    <form id="messageForm" class="no-loader" onsubmit="sendMessage(event)" enctype="multipart/form-data">
+                        <input type="hidden" id="csrfToken" value="<?= getCSRFToken() ?>">
+                        <div id="attachmentPreview" class="mb-2" style="display: none;">
+                            <div class="d-flex align-items-center bg-light rounded p-2">
+                                <i class="fas fa-paperclip me-2 text-primary"></i>
+                                <span id="attachmentName" class="text-truncate flex-grow-1" style="max-width: 200px;"></span>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeAttachment()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                         <div class="input-group">
-                            <textarea class="form-control" id="messageInput" placeholder="Type your message..." required autocomplete="off" rows="1" style="resize: none; overflow: hidden;"></textarea>
+                            <label class="btn btn-outline-secondary" for="attachmentInput" title="Attach file">
+                                <i class="fas fa-paperclip"></i>
+                            </label>
+                            <input type="file" id="attachmentInput" name="attachment" class="d-none" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" onchange="handleAttachmentSelect(this)">
+                            <textarea class="form-control" id="messageInput" placeholder="Type your message..." autocomplete="off" rows="1" style="resize: none; overflow: hidden;"></textarea>
                             <button type="submit" class="btn btn-primary" id="sendBtn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
+                        <small class="text-muted mt-1 d-block">Attach: Images, PDF, DOC, DOCX, XLS, XLSX, TXT, ZIP (max 10MB)</small>
                     </form>
                 <?php else: ?>
                     <div class="alert alert-info mb-0" id="waitingMessage">
@@ -282,9 +317,32 @@ function addMessage(message, isSent, isPending) {
     }
     div.dataset.messageId = message.id;
     
-    var content = document.createElement('div');
-    content.innerHTML = escapeHtml(message.message).replace(/\n/g, '<br>');
-    div.appendChild(content);
+    if (message.attachment_path) {
+        var attachDiv = document.createElement('div');
+        attachDiv.className = 'message-attachment mb-2';
+        
+        var isImage = (message.attachment_type || '').indexOf('image/') === 0;
+        var attachName = escapeHtml(message.attachment_name || 'Attachment');
+        
+        if (isImage) {
+            attachDiv.innerHTML = '<a href="' + escapeHtml(message.attachment_path) + '" target="_blank" class="d-block">' +
+                '<img src="' + escapeHtml(message.attachment_path) + '" alt="' + attachName + '" class="img-fluid rounded" style="max-width: 200px; max-height: 200px;">' +
+                '</a>';
+        } else {
+            var btnClass = isSent ? 'btn-light' : 'btn-outline-primary';
+            attachDiv.innerHTML = '<a href="' + escapeHtml(message.attachment_path) + '" target="_blank" class="btn btn-sm ' + btnClass + ' d-flex align-items-center" style="max-width: 200px;">' +
+                '<i class="fas fa-file-download me-2"></i>' +
+                '<span class="text-truncate">' + attachName + '</span>' +
+                '</a>';
+        }
+        div.appendChild(attachDiv);
+    }
+    
+    if (message.message) {
+        var content = document.createElement('div');
+        content.innerHTML = escapeHtml(message.message).replace(/\n/g, '<br>');
+        div.appendChild(content);
+    }
     
     var time = document.createElement('div');
     time.className = 'message-time';
@@ -332,11 +390,42 @@ function failMessage(tempId, errorMsg) {
     }
 }
 
+var attachmentInput = document.getElementById('attachmentInput');
+var attachmentPreview = document.getElementById('attachmentPreview');
+var attachmentNameEl = document.getElementById('attachmentName');
+var selectedFile = null;
+
+function handleAttachmentSelect(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        var maxSize = 10 * 1024 * 1024;
+        
+        if (file.size > maxSize) {
+            alert('File size exceeds 10MB limit');
+            input.value = '';
+            return;
+        }
+        
+        selectedFile = file;
+        attachmentNameEl.textContent = file.name;
+        attachmentPreview.style.display = 'block';
+    }
+}
+
+function removeAttachment() {
+    selectedFile = null;
+    attachmentInput.value = '';
+    attachmentPreview.style.display = 'none';
+    attachmentNameEl.textContent = '';
+}
+
 function sendMessage(e) {
     e.preventDefault();
     
     var message = messageInput.value.trim();
-    if (!message) return;
+    var hasAttachment = selectedFile !== null;
+    
+    if (!message && !hasAttachment) return;
     
     tempMessageId++;
     var currentTempId = tempMessageId;
@@ -345,18 +434,30 @@ function sendMessage(e) {
         id: 'temp_' + currentTempId,
         message: message,
         created_at: new Date().toISOString(),
-        sender_id: currentUserId
+        sender_id: currentUserId,
+        attachment_name: hasAttachment ? selectedFile.name : null,
+        attachment_path: null,
+        attachment_type: hasAttachment ? selectedFile.type : null
     };
+    
+    if (hasAttachment && selectedFile.type.indexOf('image/') === 0) {
+        tempMessage.attachment_path = URL.createObjectURL(selectedFile);
+    }
     
     pendingMessages[currentTempId] = message;
     addMessage(tempMessage, true, true);
     
+    var formData = new FormData();
+    formData.append('message', message);
+    formData.append('csrf_token', document.getElementById('csrfToken').value);
+    if (hasAttachment) {
+        formData.append('attachment', selectedFile);
+    }
+    
     messageInput.value = '';
     messageInput.style.height = '38px';
     messageInput.focus();
-    
-    var formData = new FormData();
-    formData.append('message', message);
+    removeAttachment();
     
     fetch('/chat/' + conversationId + '/send', {
         method: 'POST',
