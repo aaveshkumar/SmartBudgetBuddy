@@ -59,6 +59,9 @@ $currentUser = getCurrentUser();
                             <li class="nav-item">
                                 <a class="nav-link" href="/admin/candidates">Candidates</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/reports"><i class="fas fa-flag"></i> Reports</a>
+                            </li>
                         <?php elseif ($currentUser['type'] === USER_TYPE_EMPLOYER): ?>
                             <li class="nav-item">
                                 <a class="nav-link" href="/employer/dashboard">Dashboard</a>

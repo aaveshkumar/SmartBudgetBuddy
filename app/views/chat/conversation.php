@@ -201,7 +201,7 @@ require __DIR__ . '/../common/header.php';
                         </div>
                     </div>
                     <?php endif; ?>
-                    <form id="messageForm" onsubmit="sendMessage(event)">
+                    <form id="messageForm" class="no-loader" onsubmit="sendMessage(event)">
                         <div class="input-group">
                             <textarea class="form-control" id="messageInput" placeholder="Type your message..." required autocomplete="off" rows="1" style="resize: none; overflow: hidden;"></textarea>
                             <button type="submit" class="btn btn-primary" id="sendBtn">

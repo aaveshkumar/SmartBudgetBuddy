@@ -157,6 +157,11 @@
         
         // Add loader on form submission
         document.addEventListener('submit', function(e) {
+            // Skip forms with no-loader class (like chat)
+            if (e.target.classList.contains('no-loader')) {
+                return;
+            }
+            
             var btn = e.target.querySelector('button[type="submit"]');
             
             if (!btn) return;
