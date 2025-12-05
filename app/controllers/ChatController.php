@@ -121,12 +121,20 @@ class ChatController {
             return;
         }
         
+        $messages = $this->messageModel->getByConversationId($conversationId);
+        
+        if ($user['type'] === 'jobseeker' && empty($messages)) {
+            echo json_encode([
+                'success' => true,
+                'messages' => []
+            ]);
+            return;
+        }
+        
         $lastMessageId = $_GET['last_id'] ?? 0;
         
         if ($lastMessageId > 0) {
             $messages = $this->messageModel->getNewMessages($conversationId, $lastMessageId);
-        } else {
-            $messages = $this->messageModel->getByConversationId($conversationId);
         }
         
         $this->messageModel->markAsRead($conversationId, $user['id']);

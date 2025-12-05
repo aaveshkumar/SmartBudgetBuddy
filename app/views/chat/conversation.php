@@ -151,9 +151,36 @@ require __DIR__ . '/../common/header.php';
             <div class="chat-input">
                 <?php $canSendFirstMessage = !empty($messages) || $currentUser['type'] === 'employer'; ?>
                 <?php if ($canSendFirstMessage): ?>
+                    <?php if ($currentUser['type'] === 'employer'): ?>
+                    <div class="mb-2">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="templateDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-alt"></i> Message Templates
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="templateDropdown" style="min-width: 300px;">
+                                <li><h6 class="dropdown-header">Quick Templates</h6></li>
+                                <li><a class="dropdown-item template-item" href="#" data-template="interview_invite">
+                                    <i class="fas fa-calendar-check text-success"></i> Interview Invitation
+                                </a></li>
+                                <li><a class="dropdown-item template-item" href="#" data-template="follow_up">
+                                    <i class="fas fa-clock text-info"></i> Follow Up
+                                </a></li>
+                                <li><a class="dropdown-item template-item" href="#" data-template="next_steps">
+                                    <i class="fas fa-tasks text-primary"></i> Next Steps
+                                </a></li>
+                                <li><a class="dropdown-item template-item" href="#" data-template="documents_request">
+                                    <i class="fas fa-folder text-warning"></i> Request Documents
+                                </a></li>
+                                <li><a class="dropdown-item template-item" href="#" data-template="welcome">
+                                    <i class="fas fa-handshake text-secondary"></i> Welcome Message
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <form id="messageForm" onsubmit="sendMessage(event)">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="messageInput" placeholder="Type your message..." required autocomplete="off">
+                            <textarea class="form-control" id="messageInput" placeholder="Type your message..." required autocomplete="off" rows="1" style="resize: none; overflow: hidden;"></textarea>
                             <button type="submit" class="btn btn-primary" id="sendBtn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
@@ -176,6 +203,34 @@ var lastMessageId = <?= !empty($messages) ? end($messages)['id'] : 0 ?>;
 var chatMessages = document.getElementById('chatMessages');
 var messageInput = document.getElementById('messageInput');
 var sendBtn = document.getElementById('sendBtn');
+var jobTitle = <?= json_encode($conversation['job_title']) ?>;
+var candidateName = <?= json_encode($otherPartyName) ?>;
+
+var messageTemplates = {
+    'interview_invite': 'Hi ' + candidateName + ',\n\nThank you for applying for the ' + jobTitle + ' position. We were impressed by your profile and would like to invite you for an interview.\n\nPlease let us know your availability for the next few days, and we will schedule a convenient time.\n\nLooking forward to speaking with you!',
+    'follow_up': 'Hi ' + candidateName + ',\n\nI wanted to follow up regarding your application for the ' + jobTitle + ' position. We are still reviewing candidates and will update you shortly.\n\nIf you have any questions in the meantime, feel free to reach out.\n\nThank you for your patience!',
+    'next_steps': 'Hi ' + candidateName + ',\n\nThank you for the great conversation! Here are the next steps in our hiring process:\n\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]\n\nPlease let me know if you have any questions.',
+    'documents_request': 'Hi ' + candidateName + ',\n\nAs we proceed with your application for the ' + jobTitle + ' role, we would need you to provide the following documents:\n\n- Updated resume\n- Portfolio/work samples (if applicable)\n- References\n\nPlease share these at your earliest convenience. Thank you!',
+    'welcome': 'Hi ' + candidateName + ',\n\nWelcome! Thank you for your interest in the ' + jobTitle + ' position at our company.\n\nI am excited to connect with you and discuss how your skills and experience align with this opportunity.\n\nFeel free to share more about yourself or ask any questions you might have.'
+};
+
+document.querySelectorAll('.template-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        var templateKey = this.dataset.template;
+        if (messageTemplates[templateKey]) {
+            messageInput.value = messageTemplates[templateKey];
+            messageInput.style.height = 'auto';
+            messageInput.style.height = messageInput.scrollHeight + 'px';
+            messageInput.focus();
+        }
+    });
+});
+
+messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+});
 
 function scrollToBottom() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
