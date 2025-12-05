@@ -11,6 +11,12 @@ A comprehensive job portal application built with Core PHP featuring three user 
 - **Server**: Running on port 5000
 
 ## Recent Changes (December 5, 2025)
+- ✅ **ADMIN NOTIFICATION MANAGEMENT**
+  - Admin now sees a "Create Notification" icon (bullhorn) in navbar instead of notification bell
+  - Admin can create system notifications for new features/announcements
+  - Admin can view all sent system notifications with recipient counts
+  - Admin can delete notifications (removes from all users)
+  - Disabled notification/chat polling for admin users
 - ✅ **ENHANCED CHAT SYSTEM & EMPLOYER FEATURES**
   - **Chat Access Control**:
     - Job seekers cannot access conversations until employer sends first message
