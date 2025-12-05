@@ -226,7 +226,31 @@
                 return 'Loading...';
             }
             
-            // Add click handler to navbar and footer links
+            // Email button handler with loader
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.contact-email-btn')) {
+                    e.preventDefault();
+                    var btn = e.target.closest('.contact-email-btn');
+                    var href = btn.getAttribute('href');
+                    
+                    // Show loader
+                    btn.disabled = true;
+                    var originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<span class="btn-loader-spinner" style="border-color: rgba(13, 110, 253, 0.2); border-top-color: #0d6efd; border-right-color: #0d6efd;"></span> Opening email...';
+                    
+                    // Delay to show loader briefly
+                    setTimeout(function() {
+                        window.location.href = href;
+                        // Restore button after short delay
+                        setTimeout(function() {
+                            btn.innerHTML = originalHTML;
+                            btn.disabled = false;
+                        }, 1000);
+                    }, 300);
+                }
+            }, true);
+        
+        // Add click handler to navbar and footer links
             document.addEventListener('click', function(e) {
                 var link = e.target.closest('a');
                 
@@ -245,7 +269,7 @@
                 var isFooterLink = link.closest('footer') !== null;
                 var isDropdownItem = link.classList.contains('dropdown-item');
                 
-                // Skip email and WhatsApp contact links - let them open naturally
+                // Skip email and WhatsApp contact links - they have their own handlers
                 if (link.classList.contains('contact-email-btn') || link.classList.contains('contact-whatsapp-btn')) {
                     return;
                 }
@@ -408,17 +432,25 @@
             })
             .then(function(response) { 
                 return response.text().then(function(text) {
+                    console.log('Server response:', text);
                     try {
                         var data = JSON.parse(text);
-                        return data;
+                        return {data: data, status: response.status};
                     } catch (e) {
-                        console.error('JSON parse error:', text);
-                        throw new Error('Invalid response from server');
+                        console.error('JSON parse error - raw response:', text);
+                        console.error('Parse error:', e.message);
+                        throw new Error('Server returned invalid response: ' + text.substring(0, 100));
                     }
                 });
             })
-            .then(function(data) {
-                if (data.error) {
+            .then(function(result) {
+                var data = result.data;
+                if (result.status !== 200 && !data.success) {
+                    errorDiv.textContent = data.error || 'Request failed with status ' + result.status;
+                    errorDiv.classList.remove('d-none');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-flag"></i> Submit Report';
+                } else if (data.error) {
                     errorDiv.textContent = data.error;
                     errorDiv.classList.remove('d-none');
                     btn.disabled = false;
@@ -430,7 +462,7 @@
                         bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
                     }, 2000);
                 } else {
-                    errorDiv.textContent = 'Unexpected response. Please try again.';
+                    errorDiv.textContent = 'Unexpected response: ' + JSON.stringify(data);
                     errorDiv.classList.remove('d-none');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-flag"></i> Submit Report';

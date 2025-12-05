@@ -11,7 +11,14 @@ class ReportController {
     }
     
     public function submitReport() {
-        header('Content-Type: application/json');
+        // Disable any output buffering to prevent headers from being corrupted
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Set JSON header at the very beginning
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
         
         $user = getCurrentUser();
         if (!$user) {
