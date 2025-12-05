@@ -195,5 +195,15 @@ footer a:hover {
 /* Fix for notification and profile dropdowns */
 .notification-dropdown,
 #userDropdown + .dropdown-menu {
-    z-index: 9999 !important;
+    z-index: 99999 !important;
+}
+
+/* Fix notification dropdown parent to have high stacking context */
+.navbar .dropdown {
+    z-index: 99999;
+}
+
+.navbar .dropdown-menu.show {
+    z-index: 99999 !important;
+    position: absolute !important;
 }

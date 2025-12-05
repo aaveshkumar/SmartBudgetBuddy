@@ -32,7 +32,7 @@ require __DIR__ . '/../common/header.php';
         <div class="alert alert-info">
             <h5><i class="fas fa-bell"></i> Send Selection Notification to <?= htmlspecialchars($notification['candidate_name']) ?></h5>
             <p class="mb-2">Click below to notify the candidate about their selection:</p>
-            <a href="mailto:<?= htmlspecialchars($notification['candidate_email']) ?>?subject=<?= rawurlencode($notification['email_subject']) ?>&body=<?= rawurlencode($notification['email_body']) ?>" class="btn btn-primary me-2 contact-email-btn" target="_blank" rel="noopener">
+            <a href="mailto:<?= htmlspecialchars($notification['candidate_email']) ?>?subject=<?= rawurlencode($notification['email_subject']) ?>&body=<?= rawurlencode($notification['email_body']) ?>" class="btn btn-primary me-2 contact-email-btn">
                 <i class="fas fa-envelope"></i> Send Email Notification
             </a>
             <?php if ($notifPhone): ?>
@@ -112,7 +112,7 @@ require __DIR__ . '/../common/header.php';
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="mailto:<?= htmlspecialchars($email) ?>?subject=<?= rawurlencode("Regarding your application for $jobTitle") ?>&body=<?= rawurlencode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards") ?>" class="btn btn-sm btn-info text-white contact-email-btn" title="Send Email" target="_blank" rel="noopener">
+                                    <a href="mailto:<?= htmlspecialchars($email) ?>?subject=<?= rawurlencode("Regarding your application for $jobTitle") ?>&body=<?= rawurlencode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards") ?>" class="btn btn-sm btn-info text-white contact-email-btn" title="Send Email">
                                         <i class="fas fa-envelope"></i> Email
                                     </a>
                                     <?php if ($cleanPhone): ?>

@@ -328,18 +328,23 @@
             document.getElementById('reportSuccess').classList.add('d-none');
             document.getElementById('submitReportBtn').disabled = false;
             
-            // Refresh CSRF token before opening modal
+            // Refresh CSRF token before opening modal - wait for it to complete
             fetch('/csrf/token')
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.token) {
                         document.getElementById('reportCsrfToken').value = data.token;
                     }
+                    // Only show modal after token is ready
+                    var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                    modal.show();
                 })
-                .catch(function(err) { console.log('CSRF refresh error:', err); });
-            
-            var modal = new bootstrap.Modal(document.getElementById('reportModal'));
-            modal.show();
+                .catch(function(err) { 
+                    console.log('CSRF refresh error:', err);
+                    // Still show modal on error, will use existing token
+                    var modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                    modal.show();
+                });
         }
         
         function submitReport() {
