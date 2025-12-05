@@ -169,6 +169,13 @@ try {
         exit;
     }
     
+    // CSRF token refresh endpoint
+    if ($path === 'csrf/token') {
+        header('Content-Type: application/json');
+        echo json_encode(['token' => getCSRFToken()]);
+        exit;
+    }
+    
     // Report route
     if ($path === 'report/submit' && $requestMethod === 'POST') {
         require_once __DIR__ . '/../app/controllers/ReportController.php';

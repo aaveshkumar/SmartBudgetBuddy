@@ -15,15 +15,28 @@ require __DIR__ . '/../common/header.php';
     <?php endif; ?>
     
     <?php if (isset($_SESSION['selection_notification'])): ?>
-        <?php $notification = $_SESSION['selection_notification']; unset($_SESSION['selection_notification']); ?>
+        <?php 
+            $notification = $_SESSION['selection_notification']; 
+            unset($_SESSION['selection_notification']); 
+            // Format phone for WhatsApp: remove all non-digits, handle country code
+            $notifPhone = preg_replace('/[^0-9+]/', '', $notification['candidate_phone'] ?? '');
+            $notifPhone = ltrim($notifPhone, '+');
+            $notifPhone = preg_replace('/[^0-9]/', '', $notifPhone);
+            if (!empty($notifPhone) && strlen($notifPhone) >= 10 && strlen($notifPhone) <= 11 && substr($notifPhone, 0, 1) === '0') {
+                $notifPhone = '91' . substr($notifPhone, 1);
+            }
+            if (!empty($notifPhone) && strlen($notifPhone) == 10) {
+                $notifPhone = '91' . $notifPhone;
+            }
+        ?>
         <div class="alert alert-info">
             <h5><i class="fas fa-bell"></i> Send Selection Notification to <?= htmlspecialchars($notification['candidate_name']) ?></h5>
             <p class="mb-2">Click below to notify the candidate about their selection:</p>
-            <a href="mailto:<?= htmlspecialchars($notification['candidate_email']) ?>?subject=<?= urlencode($notification['email_subject']) ?>&body=<?= urlencode($notification['email_body']) ?>" class="btn btn-primary me-2">
+            <a href="mailto:<?= htmlspecialchars($notification['candidate_email']) ?>?subject=<?= rawurlencode($notification['email_subject']) ?>&body=<?= rawurlencode($notification['email_body']) ?>" class="btn btn-primary me-2 contact-email-btn" target="_blank" rel="noopener">
                 <i class="fas fa-envelope"></i> Send Email Notification
             </a>
-            <?php if ($notification['candidate_phone']): ?>
-            <a href="https://wa.me/<?= htmlspecialchars($notification['candidate_phone']) ?>?text=<?= urlencode($notification['whatsapp_message']) ?>" target="_blank" class="btn btn-success">
+            <?php if ($notifPhone): ?>
+            <a href="https://wa.me/<?= htmlspecialchars($notifPhone) ?>?text=<?= rawurlencode($notification['whatsapp_message']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-success contact-whatsapp-btn">
                 <i class="fab fa-whatsapp"></i> Send WhatsApp Notification
             </a>
             <?php endif; ?>
@@ -62,7 +75,20 @@ require __DIR__ . '/../common/header.php';
                             <?php foreach ($applications as $index => $application): ?>
                             <?php
                                 $phone = $application['applicant_phone'] ?? '';
-                                $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+                                // Format phone for WhatsApp: remove all non-digits
+                                $cleanPhone = preg_replace('/[^0-9+]/', '', $phone);
+                                // Remove leading + if present (wa.me doesn't need it)
+                                $cleanPhone = ltrim($cleanPhone, '+');
+                                // Remove all remaining non-digits
+                                $cleanPhone = preg_replace('/[^0-9]/', '', $cleanPhone);
+                                // If phone starts with 0 and is 10-11 digits (likely local), replace leading 0 with default country code
+                                if (!empty($cleanPhone) && strlen($cleanPhone) >= 10 && strlen($cleanPhone) <= 11 && substr($cleanPhone, 0, 1) === '0') {
+                                    $cleanPhone = '91' . substr($cleanPhone, 1);
+                                }
+                                // If exactly 10 digits (no country code), assume local and add default country code
+                                if (!empty($cleanPhone) && strlen($cleanPhone) == 10) {
+                                    $cleanPhone = '91' . $cleanPhone;
+                                }
                                 $email = $application['applicant_email'];
                                 $name = $application['applicant_name'];
                                 $jobTitle = $job['title'];
@@ -86,11 +112,11 @@ require __DIR__ . '/../common/header.php';
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="mailto:<?= htmlspecialchars($email) ?>?subject=<?= urlencode("Regarding your application for $jobTitle") ?>&body=<?= urlencode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards") ?>" class="btn btn-sm btn-info text-white" title="Send Email">
+                                    <a href="mailto:<?= htmlspecialchars($email) ?>?subject=<?= rawurlencode("Regarding your application for $jobTitle") ?>&body=<?= rawurlencode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards") ?>" class="btn btn-sm btn-info text-white contact-email-btn" title="Send Email" target="_blank" rel="noopener">
                                         <i class="fas fa-envelope"></i> Email
                                     </a>
                                     <?php if ($cleanPhone): ?>
-                                    <a href="https://wa.me/<?= htmlspecialchars($cleanPhone) ?>?text=<?= urlencode("Hello $name, I'm reaching out regarding your application for the position of $jobTitle.") ?>" target="_blank" class="btn btn-sm btn-success mt-1" title="Send WhatsApp">
+                                    <a href="https://wa.me/<?= htmlspecialchars($cleanPhone) ?>?text=<?= rawurlencode("Hello $name, I'm reaching out regarding your application for the position of $jobTitle.") ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success mt-1 contact-whatsapp-btn" title="Send WhatsApp - Opens in new tab">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </a>
                                     <?php else: ?>

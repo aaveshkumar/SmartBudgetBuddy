@@ -245,6 +245,11 @@
                 var isFooterLink = link.closest('footer') !== null;
                 var isDropdownItem = link.classList.contains('dropdown-item');
                 
+                // Skip email and WhatsApp contact links - let them open naturally
+                if (link.classList.contains('contact-email-btn') || link.classList.contains('contact-whatsapp-btn')) {
+                    return;
+                }
+                
                 if (isNavLink || isFooterLink || isDropdownItem) {
                     var linkText = link.textContent.trim();
                     showPageLoader(getNavLoaderText(linkText));
@@ -322,6 +327,17 @@
             document.getElementById('reportError').classList.add('d-none');
             document.getElementById('reportSuccess').classList.add('d-none');
             document.getElementById('submitReportBtn').disabled = false;
+            
+            // Refresh CSRF token before opening modal
+            fetch('/csrf/token')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.token) {
+                        document.getElementById('reportCsrfToken').value = data.token;
+                    }
+                })
+                .catch(function(err) { console.log('CSRF refresh error:', err); });
+            
             var modal = new bootstrap.Modal(document.getElementById('reportModal'));
             modal.show();
         }
@@ -544,22 +560,45 @@
         })();
         <?php endif; ?>
         
-        // Enable click-outside-to-close for all modals (especially for mobile)
+        // Enable click-outside-to-close for all modals and hamburger menu (especially for mobile)
         document.addEventListener('DOMContentLoaded', function() {
             // All Bootstrap modals with default backdrop behavior will close on outside click
-            // This ensures modals are configured correctly
             var modals = document.querySelectorAll('.modal');
             modals.forEach(function(modal) {
-                // Remove any static backdrop that prevents clicking outside to close
                 modal.removeAttribute('data-bs-backdrop');
-                
-                // Add click handler on modal backdrop for mobile touch devices
                 modal.addEventListener('click', function(e) {
                     if (e.target === modal) {
                         var modalInstance = bootstrap.Modal.getInstance(modal);
                         if (modalInstance) {
                             modalInstance.hide();
                         }
+                    }
+                });
+            });
+            
+            // Close hamburger menu when clicking outside on mobile/tablet
+            document.addEventListener('click', function(e) {
+                var navbar = document.getElementById('navbarNav');
+                var toggler = document.querySelector('.navbar-toggler');
+                
+                if (navbar && navbar.classList.contains('show')) {
+                    // Check if click was outside the navbar and toggler
+                    if (!navbar.contains(e.target) && !toggler.contains(e.target)) {
+                        // Use getOrCreateInstance to ensure we have a valid instance
+                        var bsCollapse = bootstrap.Collapse.getOrCreateInstance(navbar, {toggle: false});
+                        bsCollapse.hide();
+                    }
+                }
+            });
+            
+            // Also close hamburger when clicking on a nav link
+            var navLinks = document.querySelectorAll('#navbarNav .nav-link:not(.dropdown-toggle)');
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    var navbar = document.getElementById('navbarNav');
+                    if (navbar && navbar.classList.contains('show')) {
+                        var bsCollapse = bootstrap.Collapse.getOrCreateInstance(navbar, {toggle: false});
+                        bsCollapse.hide();
                     }
                 });
             });

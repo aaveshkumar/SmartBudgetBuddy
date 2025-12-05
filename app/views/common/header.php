@@ -41,9 +41,9 @@ $currentUser = getCurrentUser();
                 <i class="fas fa-briefcase"></i> ConnectWith9
             </a>
             <?php if ($currentUser && $currentUser['type'] !== USER_TYPE_ADMIN): ?>
-            <!-- Mobile-only icons (outside hamburger) -->
+            <!-- Mobile/Tablet icons (outside hamburger) - visible on small AND medium screens -->
             <div class="d-flex align-items-center d-lg-none order-lg-2 me-2">
-                <!-- Chat Icon (Mobile) -->
+                <!-- Chat Icon (Mobile/Tablet) -->
                 <a class="nav-link position-relative text-white px-2" href="/chat" title="Messages">
                     <i class="fas fa-comments"></i>
                     <span id="chatBadgeMobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
@@ -51,7 +51,7 @@ $currentUser = getCurrentUser();
                     </span>
                 </a>
                 
-                <!-- Notification Bell (Mobile) -->
+                <!-- Notification Bell (Mobile/Tablet) -->
                 <div class="dropdown">
                     <a class="nav-link position-relative text-white px-2 dropdown-toggle" href="#" id="notificationDropdownMobile" role="button" data-bs-toggle="dropdown" title="Notifications">
                         <i class="fas fa-bell"></i>
@@ -74,6 +74,19 @@ $currentUser = getCurrentUser();
                         <a class="dropdown-item text-primary text-center" href="/notifications">View All Notifications</a>
                     </div>
                 </div>
+            </div>
+            <?php elseif ($currentUser && $currentUser['type'] === USER_TYPE_ADMIN): ?>
+            <!-- Admin icons outside hamburger on mobile/tablet -->
+            <div class="d-flex align-items-center d-lg-none order-lg-2 me-2">
+                <!-- Reports Icon (Admin Mobile/Tablet) -->
+                <a class="nav-link text-white px-2" href="/admin/reports" title="Reports">
+                    <i class="fas fa-flag"></i>
+                </a>
+                
+                <!-- Announcements Icon (Admin Mobile/Tablet) -->
+                <a class="nav-link text-white px-2" href="/admin/notifications" title="System Notifications">
+                    <i class="fas fa-bullhorn"></i>
+                </a>
             </div>
             <?php endif; ?>
             
