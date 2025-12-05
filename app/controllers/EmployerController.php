@@ -34,6 +34,7 @@ class EmployerController {
     
     // View and filter candidates
     public function candidates() {
+        $user = getCurrentUser();
         $filters = [];
         
         if (!empty($_GET['city'])) {
@@ -61,6 +62,9 @@ class EmployerController {
         }
         
         $candidates = $this->profileModel->searchCandidates($filters);
+        
+        $conversationModel = new Conversation();
+        $selectedCandidates = $conversationModel->getSelectedCandidatesByEmployer($user['id']);
         
         require __DIR__ . '/../views/employer/candidates.php';
     }

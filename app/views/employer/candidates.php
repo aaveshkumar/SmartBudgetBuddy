@@ -87,9 +87,20 @@ require __DIR__ . '/../common/header.php';
                                 <?php endif; ?>
                                 
                                 <div class="flex-grow-1">
-                                    <h5 class="mb-1"><?= htmlspecialchars($candidate['name']) ?></h5>
+                                    <?php $isSelected = isset($selectedCandidates[$candidate['id']]); ?>
+                                    <h5 class="mb-1">
+                                        <?= htmlspecialchars($candidate['name']) ?>
+                                        <?php if ($isSelected): ?>
+                                            <span class="badge bg-success ms-2"><i class="fas fa-check-circle"></i> Selected</span>
+                                        <?php endif; ?>
+                                    </h5>
                                     <?php if ($candidate['headline']): ?>
                                         <p class="text-muted mb-2"><?= htmlspecialchars($candidate['headline']) ?></p>
+                                    <?php endif; ?>
+                                    <?php if ($isSelected): ?>
+                                        <p class="mb-1 text-success small">
+                                            <i class="fas fa-briefcase"></i> Selected for: <?= htmlspecialchars($selectedCandidates[$candidate['id']]['job_title']) ?>
+                                        </p>
                                     <?php endif; ?>
                                     
                                     <p class="mb-1">
@@ -121,6 +132,11 @@ require __DIR__ . '/../common/header.php';
                                         <a href="/employer/candidates/<?= $candidate['id'] ?>" class="btn btn-sm btn-primary">
                                             <i class="fas fa-eye"></i> View Full Profile
                                         </a>
+                                        <?php if ($isSelected): ?>
+                                            <a href="/chat/<?= $selectedCandidates[$candidate['id']]['conversation_id'] ?>" class="btn btn-sm btn-success">
+                                                <i class="fas fa-comment"></i> Message
+                                            </a>
+                                        <?php endif; ?>
                                         <?php if ($candidate['resume_file']): ?>
                                             <a href="/uploads/resumes/<?= htmlspecialchars($candidate['resume_file']) ?>" 
                                                target="_blank" class="btn btn-sm btn-outline-success">

@@ -130,4 +130,24 @@ class Conversation {
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([':id' => $id]);
     }
+    
+    public function getSelectedCandidatesByEmployer($employerId) {
+        $sql = "SELECT c.candidate_id, c.id as conversation_id, c.job_id, j.title as job_title
+                FROM conversations c
+                JOIN jobs j ON c.job_id = j.id
+                WHERE c.employer_id = :employer_id AND c.status = 'active'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':employer_id' => $employerId]);
+        $results = $stmt->fetchAll();
+        
+        $selected = [];
+        foreach ($results as $row) {
+            $selected[$row['candidate_id']] = [
+                'conversation_id' => $row['conversation_id'],
+                'job_id' => $row['job_id'],
+                'job_title' => $row['job_title']
+            ];
+        }
+        return $selected;
+    }
 }
