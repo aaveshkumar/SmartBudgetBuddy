@@ -58,7 +58,7 @@ class Conversation {
                     cand.name as other_party_name,
                     cand.id as other_party_id,
                     (SELECT COUNT(*) FROM conversation_messages cm 
-                     WHERE cm.conversation_id = c.id AND cm.sender_id != :user_id AND cm.is_read = 0) as unread_count,
+                     WHERE cm.conversation_id = c.id AND cm.sender_id != :user_id1 AND cm.is_read = 0) as unread_count,
                     (SELECT message FROM conversation_messages cm2 
                      WHERE cm2.conversation_id = c.id 
                      ORDER BY cm2.created_at DESC LIMIT 1) as last_message,
@@ -68,7 +68,7 @@ class Conversation {
                     FROM conversations c
                     JOIN jobs j ON c.job_id = j.id
                     JOIN users cand ON c.candidate_id = cand.id
-                    WHERE c.employer_id = :user_id AND c.status = 'active'
+                    WHERE c.employer_id = :user_id2 AND c.status = 'active'
                     ORDER BY last_message_time DESC";
         } else {
             $sql = "SELECT c.*, 
@@ -76,7 +76,7 @@ class Conversation {
                     emp.name as other_party_name,
                     emp.id as other_party_id,
                     (SELECT COUNT(*) FROM conversation_messages cm 
-                     WHERE cm.conversation_id = c.id AND cm.sender_id != :user_id AND cm.is_read = 0) as unread_count,
+                     WHERE cm.conversation_id = c.id AND cm.sender_id != :user_id1 AND cm.is_read = 0) as unread_count,
                     (SELECT message FROM conversation_messages cm2 
                      WHERE cm2.conversation_id = c.id 
                      ORDER BY cm2.created_at DESC LIMIT 1) as last_message,
@@ -86,11 +86,11 @@ class Conversation {
                     FROM conversations c
                     JOIN jobs j ON c.job_id = j.id
                     JOIN users emp ON c.employer_id = emp.id
-                    WHERE c.candidate_id = :user_id AND c.status = 'active'
+                    WHERE c.candidate_id = :user_id2 AND c.status = 'active'
                     ORDER BY last_message_time DESC";
         }
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':user_id' => $userId]);
+        $stmt->execute([':user_id1' => $userId, ':user_id2' => $userId]);
         return $stmt->fetchAll();
     }
     
