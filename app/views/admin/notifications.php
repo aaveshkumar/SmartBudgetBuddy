@@ -15,9 +15,9 @@ require __DIR__ . '/../common/header.php';
     
     <div class="row">
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-paper-plane"></i> Send System Notification</h5>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Create New Notification</h5>
                 </div>
                 <div class="card-body">
                     <form action="/admin/notifications/send" method="POST">
@@ -47,6 +47,60 @@ require __DIR__ . '/../common/header.php';
                             <i class="fas fa-paper-plane"></i> Send Notification
                         </button>
                     </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Sent Notifications</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (empty($systemNotifications)): ?>
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-bell-slash fa-3x mb-3"></i>
+                            <p>No notifications have been sent yet.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Message</th>
+                                        <th>Sent To</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($systemNotifications as $notification): ?>
+                                    <tr>
+                                        <td><strong><?= htmlspecialchars($notification['title']) ?></strong></td>
+                                        <td>
+                                            <small><?= htmlspecialchars(substr($notification['message'], 0, 80)) ?><?= strlen($notification['message']) > 80 ? '...' : '' ?></small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info"><?= $notification['recipient_count'] ?> users</span>
+                                        </td>
+                                        <td>
+                                            <small><?= date('M j, Y g:i A', strtotime($notification['created_at'])) ?></small>
+                                        </td>
+                                        <td>
+                                            <form action="/admin/notifications/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this notification from all users? This cannot be undone.')">
+                                                <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
+                                                <input type="hidden" name="title" value="<?= htmlspecialchars($notification['title']) ?>">
+                                                <input type="hidden" name="message" value="<?= htmlspecialchars($notification['message']) ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

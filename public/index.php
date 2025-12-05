@@ -209,6 +209,8 @@ try {
             $controller->notifications();
         } elseif ($action === 'notifications/send' && $requestMethod === 'POST') {
             $controller->sendSystemNotification();
+        } elseif ($action === 'notifications/delete' && $requestMethod === 'POST') {
+            $controller->deleteSystemNotification();
         } elseif ($action === 'reports') {
             $controller->reports();
         } elseif (preg_match('/^reports\/(\d+)$/', $action, $m)) {

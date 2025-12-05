@@ -296,6 +296,9 @@ class AdminController {
     
     // Show system notifications page
     public function notifications() {
+        $notificationModel = new Notification();
+        $systemNotifications = $notificationModel->getSystemNotifications();
+        
         $meta = generateMetaTags('System Notifications', 'Send notifications to users');
         require __DIR__ . '/../views/admin/notifications.php';
     }
@@ -333,6 +336,28 @@ class AdminController {
         }
         
         setFlash('success', "System notification sent to $count users successfully!");
+        redirect('/admin/notifications');
+    }
+    
+    // Delete system notification
+    public function deleteSystemNotification() {
+        checkCSRF();
+        
+        $title = $_POST['title'] ?? '';
+        $message = $_POST['message'] ?? '';
+        
+        if (empty($title) || empty($message)) {
+            setFlash('error', 'Invalid notification data');
+            redirect('/admin/notifications');
+        }
+        
+        $notificationModel = new Notification();
+        if ($notificationModel->deleteSystemNotificationsByContent($title, $message)) {
+            setFlash('success', 'Notification deleted successfully');
+        } else {
+            setFlash('error', 'Failed to delete notification');
+        }
+        
         redirect('/admin/notifications');
     }
     

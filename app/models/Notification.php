@@ -136,4 +136,23 @@ class Notification {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+    
+    public function getSystemNotifications($limit = 50) {
+        $sql = "SELECT title, message, type, MIN(created_at) as created_at, COUNT(*) as recipient_count
+                FROM notifications 
+                WHERE type = 'system' AND related_type = 'system'
+                GROUP BY title, message, type
+                ORDER BY MIN(created_at) DESC
+                LIMIT :limit";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+    
+    public function deleteSystemNotificationsByContent($title, $message) {
+        $sql = "DELETE FROM notifications WHERE type = 'system' AND related_type = 'system' AND title = :title AND message = :message";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([':title' => $title, ':message' => $message]);
+    }
 }

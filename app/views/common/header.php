@@ -88,9 +88,8 @@ $currentUser = getCurrentUser();
                                 </span>
                             </a>
                         </li>
-                        <?php endif; ?>
                         
-                        <!-- Notification Bell -->
+                        <!-- Notification Bell (for non-admin users) -->
                         <li class="nav-item dropdown">
                             <a class="nav-link position-relative dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" title="Notifications">
                                 <i class="fas fa-bell"></i>
@@ -115,6 +114,14 @@ $currentUser = getCurrentUser();
                                 </li>
                             </ul>
                         </li>
+                        <?php else: ?>
+                        <!-- Create Notification Icon (for admin only) -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/notifications" title="Create Notification">
+                                <i class="fas fa-bullhorn"></i>
+                            </a>
+                        </li>
+                        <?php endif; ?>
                         
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">

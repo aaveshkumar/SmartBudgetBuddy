@@ -372,8 +372,8 @@
             });
         }
         
-        <?php if (isset($currentUser) && $currentUser): ?>
-        // Notification and Chat polling
+        <?php if (isset($currentUser) && $currentUser && $currentUser['type'] !== USER_TYPE_ADMIN): ?>
+        // Notification and Chat polling (for non-admin users only)
         (function() {
             var notificationBadge = document.getElementById('notificationBadge');
             var chatBadge = document.getElementById('chatBadge');
