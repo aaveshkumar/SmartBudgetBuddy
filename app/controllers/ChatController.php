@@ -157,4 +157,31 @@ class ChatController {
         $count = $this->conversationModel->getTotalUnreadCount($user['id']);
         echo json_encode(['count' => (int)$count]);
     }
+    
+    public function startConversation($candidateId) {
+        $user = getCurrentUser();
+        if (!$user) {
+            redirect('/login');
+        }
+        
+        if ($user['type'] !== 'employer') {
+            setFlash('error', 'Only employers can start conversations');
+            redirect('/chat');
+        }
+        
+        $jobId = $_GET['job_id'] ?? null;
+        if (!$jobId) {
+            setFlash('error', 'Job ID is required');
+            redirect('/chat');
+        }
+        
+        $conversation = $this->conversationModel->findByParticipants($user['id'], $candidateId, $jobId);
+        
+        if ($conversation) {
+            redirect('/chat/' . $conversation['id']);
+        } else {
+            setFlash('error', 'No conversation found for this candidate. Please select them first.');
+            redirect('/employer/jobs/' . $jobId . '/applications');
+        }
+    }
 }

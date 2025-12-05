@@ -157,6 +157,8 @@ try {
             $controller->index();
         } elseif ($action === 'unread-count') {
             $controller->getUnreadCount();
+        } elseif (preg_match('/^start\/(\d+)$/', $action, $m)) {
+            $controller->startConversation($m[1]);
         } elseif (preg_match('/^(\d+)$/', $action, $m)) {
             $controller->conversation($m[1]);
         } elseif (preg_match('/^(\d+)\/send$/', $action, $m) && $requestMethod === 'POST') {

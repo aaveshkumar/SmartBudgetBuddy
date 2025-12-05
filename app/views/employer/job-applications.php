@@ -114,7 +114,7 @@ require __DIR__ . '/../common/header.php';
                                     </button>
                                     <?php endif; ?>
                                     <?php if ($isSelected): ?>
-                                    <a href="/chat/conversation/<?= $application['user_id'] ?>?job_id=<?= $job['id'] ?>" class="btn btn-sm btn-primary mt-1" title="Message Candidate">
+                                    <a href="/chat/start/<?= $application['user_id'] ?>?job_id=<?= $job['id'] ?>" class="btn btn-sm btn-primary mt-1" title="Message Candidate">
                                         <i class="fas fa-comment"></i> Message
                                     </a>
                                     <?php endif; ?>
