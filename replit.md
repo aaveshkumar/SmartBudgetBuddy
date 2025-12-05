@@ -11,6 +11,15 @@ A comprehensive job portal application built with Core PHP featuring three user 
 - **Server**: Running on port 5000
 
 ## Recent Changes (December 5, 2025)
+- ✅ **BUG FIXES & IMPROVEMENTS**
+  - Fixed "Undefined array key 'status'" warning on applications page
+  - Added `status` column to applications table (pending/selected)
+  - Fixed candidate selection not persisting in database
+  - **Applications Page Enhancements**:
+    - Status column with "Selected" (green) or "Pending" (gray) badges
+    - Row highlighting for selected candidates
+    - "Select" button changes to disabled "Selected" after selection
+    - "Message" button appears for selected candidates to start chat
 - ✅ **ADMIN NOTIFICATION MANAGEMENT**
   - Admin now sees a "Create Notification" icon (bullhorn) in navbar instead of notification bell
   - Admin can create system notifications for new features/announcements
