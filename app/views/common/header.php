@@ -77,14 +77,14 @@ $currentUser = getCurrentUser();
             </div>
             <?php elseif ($currentUser && $currentUser['type'] === USER_TYPE_ADMIN): ?>
             <!-- Admin icons outside hamburger on mobile/tablet - closer to hamburger -->
-            <div class="d-flex align-items-center d-lg-none order-lg-2 ms-auto" style="margin-right: 0.25rem;">
+            <div class="d-flex align-items-center d-lg-none order-lg-2 ms-auto" style="margin-right: 5px;">
                 <!-- Reports Icon (Admin Mobile/Tablet) -->
-                <a class="nav-link text-white px-1" href="/admin/reports" title="Reports">
+                <a class="nav-link text-white px-1" href="/admin/reports" title="Reports" style="margin-right: 5px;">
                     <i class="fas fa-flag"></i>
                 </a>
                 
                 <!-- Announcements Icon (Admin Mobile/Tablet) -->
-                <a class="nav-link text-white px-1" href="/admin/notifications" title="System Notifications">
+                <a class="nav-link text-white px-1" href="/admin/notifications" title="System Notifications" style="margin-right: 5px;">
                     <i class="fas fa-bullhorn"></i>
                 </a>
             </div>

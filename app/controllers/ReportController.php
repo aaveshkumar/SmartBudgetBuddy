@@ -32,7 +32,7 @@ class ReportController {
             return;
         }
         
-        if ($user['status'] !== 'active') {
+        if (($user['status'] ?? 'inactive') !== 'active') {
             echo json_encode(['error' => 'Your account must be verified to report']);
             return;
         }

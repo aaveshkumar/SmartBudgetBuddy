@@ -217,3 +217,12 @@ footer a:hover {
 main, .container, .card, .sticky-top {
     z-index: auto !important;
 }
+
+/* Force notification dropdown to appear above everything including sticky cards */
+.notification-dropdown {
+    position: fixed !important;
+    min-width: 280px;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+}
