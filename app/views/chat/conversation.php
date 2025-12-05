@@ -68,6 +68,22 @@ require __DIR__ . '/../common/header.php';
         height: calc(100vh - 150px);
     }
 }
+.chat-input .input-group {
+    align-items: flex-end;
+}
+.chat-input .input-group textarea {
+    max-height: 150px;
+    min-height: 38px;
+}
+.chat-input .input-group .btn {
+    height: 38px;
+    flex-shrink: 0;
+}
+.chat-input .btn .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+}
 </style>
 
 <div class="container-fluid px-0">
@@ -270,7 +286,9 @@ function sendMessage(e) {
     var message = messageInput.value.trim();
     if (!message) return;
     
+    var originalBtnHtml = sendBtn.innerHTML;
     sendBtn.disabled = true;
+    sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
     messageInput.disabled = true;
     
     var formData = new FormData();
@@ -286,6 +304,7 @@ function sendMessage(e) {
             addMessage(data.message, true);
             lastMessageId = data.message.id;
             messageInput.value = '';
+            messageInput.style.height = '38px';
         } else if (data.error) {
             alert(data.error);
         }
@@ -295,6 +314,7 @@ function sendMessage(e) {
     })
     .finally(function() {
         sendBtn.disabled = false;
+        sendBtn.innerHTML = originalBtnHtml;
         messageInput.disabled = false;
         messageInput.focus();
     });
