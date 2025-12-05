@@ -67,6 +67,7 @@ require __DIR__ . '/../common/header.php';
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Applied On</th>
+                                <th>Status</th>
                                 <th>Resume</th>
                                 <th>Contact</th>
                                 <th>Action</th>
@@ -80,12 +81,20 @@ require __DIR__ . '/../common/header.php';
                                 $email = $application['applicant_email'];
                                 $name = $application['applicant_name'];
                                 $jobTitle = $job['title'];
+                                $isSelected = ($application['status'] ?? 'pending') === 'selected';
                             ?>
-                            <tr>
+                            <tr class="<?= $isSelected ? 'table-success' : '' ?>">
                                 <td><?= htmlspecialchars($name) ?></td>
                                 <td><?= htmlspecialchars($email) ?></td>
                                 <td><?= $phone ? htmlspecialchars($phone) : '<span class="text-muted">Not provided</span>' ?></td>
                                 <td><?= formatDate($application['applied_at']) ?></td>
+                                <td>
+                                    <?php if ($isSelected): ?>
+                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Selected</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Pending</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <a href="/public/uploads/resumes/<?= htmlspecialchars($application['resume_path']) ?>" class="btn btn-sm btn-primary" target="_blank" download>
                                         <i class="fas fa-download"></i> Download
@@ -103,6 +112,11 @@ require __DIR__ . '/../common/header.php';
                                     <button class="btn btn-sm btn-secondary mt-1" disabled title="No phone number">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </button>
+                                    <?php endif; ?>
+                                    <?php if ($isSelected): ?>
+                                    <a href="/chat/conversation/<?= $application['user_id'] ?>?job_id=<?= $job['id'] ?>" class="btn btn-sm btn-primary mt-1" title="Message Candidate">
+                                        <i class="fas fa-comment"></i> Message
+                                    </a>
                                     <?php endif; ?>
                                     <script>
                                         function sendEmail<?= $index ?>() {
@@ -123,12 +137,18 @@ require __DIR__ . '/../common/header.php';
                                     </script>
                                 </td>
                                 <td>
-                                    <form action="/employer/jobs/<?= $job['id'] ?>/applications/<?= $application['id'] ?>/select" method="POST" style="display:inline;">
-                                        <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
-                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Select this candidate? You will be prompted to send them a notification.')">
-                                            <i class="fas fa-user-check"></i> Select
+                                    <?php if ($isSelected): ?>
+                                        <button type="button" class="btn btn-sm btn-outline-success" disabled>
+                                            <i class="fas fa-user-check"></i> Selected
                                         </button>
-                                    </form>
+                                    <?php else: ?>
+                                        <form action="/employer/jobs/<?= $job['id'] ?>/applications/<?= $application['id'] ?>/select" method="POST" style="display:inline;">
+                                            <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Select this candidate? You will be prompted to send them a notification.')">
+                                                <i class="fas fa-user-check"></i> Select
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
