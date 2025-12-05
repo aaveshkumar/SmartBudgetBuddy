@@ -48,6 +48,14 @@ The application follows a Model-View-Controller (MVC) architectural pattern, sep
 ### UI/UX Design
 The application uses Bootstrap 5.3 for its responsive design, ensuring a consistent and user-friendly interface across devices. Custom CSS styling is applied for branding. Icons are provided by Font Awesome 6.4.
 
+## Recent Changes (Dec 2025)
+*   **Mobile/Tablet UI Improvements**: Notifications, messages, and admin icons (reports, announcements) now appear outside the hamburger menu on small and medium screens for quick access
+*   **Hamburger Menu**: Closes when clicking outside or selecting a nav link on mobile/tablet
+*   **WhatsApp Integration**: Uses wa.me API for direct messaging without requiring contact to be saved; proper international phone number formatting
+*   **Email Buttons**: Opens email client directly with pre-filled subject and body
+*   **Report System**: CSRF token refresh mechanism ensures reports work even after session changes
+*   **Modal Dismiss**: All modals close when clicking outside on mobile devices
+
 ## External Dependencies
 *   **Database**: Remote MySQL 8.0 (Hostinger)
 *   **UI Framework**: Bootstrap 5.3
