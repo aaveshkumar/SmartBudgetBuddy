@@ -42,7 +42,7 @@ require __DIR__ . '/../common/header.php';
                         <p class="text-muted d-flex align-items-center justify-content-between">
                             <small><i class="fas fa-clock"></i> Posted <?= formatDate($job['created_at']) ?></small>
                             <?php if (isLoggedIn() && (getCurrentUser()['status'] ?? 'active') === 'active' && getCurrentUser()['type'] !== USER_TYPE_ADMIN): ?>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="openReportModal('job', <?= $job['id'] ?>)">
+                                <button type="button" class="btn btn-sm btn-outline-danger report-btn" id="reportJobBtn" onclick="openReportModal('job', <?= $job['id'] ?>)">
                                     <i class="fas fa-flag"></i> Report
                                 </button>
                             <?php endif; ?>

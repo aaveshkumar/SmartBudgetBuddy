@@ -192,18 +192,28 @@ footer a:hover {
     z-index: 9999 !important;
 }
 
-/* Fix for notification and profile dropdowns */
+/* Fix for notification and profile dropdowns - HIGHEST z-index */
 .notification-dropdown,
 #userDropdown + .dropdown-menu {
-    z-index: 99999 !important;
+    z-index: 2147483647 !important;
 }
 
 /* Fix notification dropdown parent to have high stacking context */
 .navbar .dropdown {
-    z-index: 99999;
+    z-index: 2147483647;
 }
 
 .navbar .dropdown-menu.show {
-    z-index: 99999 !important;
+    z-index: 2147483647 !important;
     position: absolute !important;
+}
+
+/* Ensure navbar has high stacking context */
+.navbar {
+    z-index: 2147483646 !important;
+}
+
+/* All page content should be below navbar dropdowns */
+main, .container, .card, .sticky-top {
+    z-index: auto !important;
 }

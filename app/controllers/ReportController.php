@@ -54,17 +54,22 @@ class ReportController {
             return;
         }
         
-        $reportId = $this->reportModel->create([
-            'reporter_id' => $user['id'],
-            'reported_type' => $reportedType,
-            'reported_id' => $reportedId,
-            'message' => $message
-        ]);
-        
-        if ($reportId) {
-            echo json_encode(['success' => true, 'message' => 'Report submitted successfully. Admin will review it.']);
-        } else {
-            echo json_encode(['error' => 'Failed to submit report. Please try again.']);
+        try {
+            $reportId = $this->reportModel->create([
+                'reporter_id' => $user['id'],
+                'reported_type' => $reportedType,
+                'reported_id' => $reportedId,
+                'message' => $message
+            ]);
+            
+            if ($reportId) {
+                echo json_encode(['success' => true, 'message' => 'Report submitted successfully. Admin will review it.']);
+            } else {
+                echo json_encode(['error' => 'Failed to submit report. Please try again.']);
+            }
+        } catch (Exception $e) {
+            error_log('Report submission error: ' . $e->getMessage());
+            echo json_encode(['error' => 'Database error. Please try again later.']);
         }
     }
 }

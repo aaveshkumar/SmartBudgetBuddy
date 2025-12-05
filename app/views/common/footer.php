@@ -321,12 +321,23 @@
         
         // Report functionality
         function openReportModal(type, id) {
+            // Find and show loader on the report button that was clicked
+            var reportBtns = document.querySelectorAll('.report-btn, [onclick*="openReportModal"]');
+            reportBtns.forEach(function(btn) {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(id)) {
+                    btn.disabled = true;
+                    btn.dataset.originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<span class="btn-loader-spinner" style="border-color: rgba(220,53,69,0.2); border-top-color: #dc3545; border-right-color: #dc3545;"></span> Loading...';
+                }
+            });
+            
             document.getElementById('reportType').value = type;
             document.getElementById('reportId').value = id;
             document.getElementById('reportMessage').value = '';
             document.getElementById('reportError').classList.add('d-none');
             document.getElementById('reportSuccess').classList.add('d-none');
             document.getElementById('submitReportBtn').disabled = false;
+            document.getElementById('submitReportBtn').innerHTML = '<i class="fas fa-flag"></i> Submit Report';
             
             // Refresh CSRF token before opening modal - wait for it to complete
             fetch('/csrf/token')
@@ -335,12 +346,28 @@
                     if (data.token) {
                         document.getElementById('reportCsrfToken').value = data.token;
                     }
+                    // Restore report buttons
+                    reportBtns.forEach(function(btn) {
+                        if (btn.dataset.originalHtml) {
+                            btn.innerHTML = btn.dataset.originalHtml;
+                            btn.disabled = false;
+                            delete btn.dataset.originalHtml;
+                        }
+                    });
                     // Only show modal after token is ready
                     var modal = new bootstrap.Modal(document.getElementById('reportModal'));
                     modal.show();
                 })
                 .catch(function(err) { 
                     console.log('CSRF refresh error:', err);
+                    // Restore report buttons
+                    reportBtns.forEach(function(btn) {
+                        if (btn.dataset.originalHtml) {
+                            btn.innerHTML = btn.dataset.originalHtml;
+                            btn.disabled = false;
+                            delete btn.dataset.originalHtml;
+                        }
+                    });
                     // Still show modal on error, will use existing token
                     var modal = new bootstrap.Modal(document.getElementById('reportModal'));
                     modal.show();
@@ -376,13 +403,19 @@
             
             fetch('/report/submit', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                credentials: 'same-origin'
             })
             .then(function(response) { 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); 
+                return response.text().then(function(text) {
+                    try {
+                        var data = JSON.parse(text);
+                        return data;
+                    } catch (e) {
+                        console.error('JSON parse error:', text);
+                        throw new Error('Invalid response from server');
+                    }
+                });
             })
             .then(function(data) {
                 if (data.error) {
@@ -390,17 +423,22 @@
                     errorDiv.classList.remove('d-none');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-flag"></i> Submit Report';
-                } else {
-                    successDiv.textContent = data.message;
+                } else if (data.success) {
+                    successDiv.textContent = data.message || 'Report submitted successfully!';
                     successDiv.classList.remove('d-none');
                     setTimeout(function() {
                         bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
                     }, 2000);
+                } else {
+                    errorDiv.textContent = 'Unexpected response. Please try again.';
+                    errorDiv.classList.remove('d-none');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-flag"></i> Submit Report';
                 }
             })
             .catch(function(err) {
                 console.error('Report error:', err);
-                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.textContent = err.message || 'An error occurred. Please try again.';
                 errorDiv.classList.remove('d-none');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-flag"></i> Submit Report';
