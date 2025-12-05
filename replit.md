@@ -10,6 +10,25 @@ A comprehensive job portal application built with Core PHP featuring three user 
 - **PHP Version**: 8.2
 - **Server**: Running on port 5000
 
+## Recent Changes (December 5, 2025)
+- ✅ **ENHANCED CHAT SYSTEM & EMPLOYER FEATURES**
+  - **Chat Access Control**:
+    - Job seekers cannot access conversations until employer sends first message
+    - Both page view and AJAX polling endpoints secured
+    - Clear messaging explaining first-message policy to job seekers
+  - **Employer Candidates Page Improvements**:
+    - "Selected" status badge indicator for selected candidates
+    - Shows which job each candidate was selected for
+    - Direct "Message" button to chat with selected candidates
+  - **Message Templates for Employers**:
+    - Interview Invitation template
+    - Follow Up template
+    - Next Steps template
+    - Request Documents template
+    - Welcome Message template
+    - Templates auto-populate with candidate name and job title
+    - Expandable textarea for longer messages
+
 ## Recent Changes (December 4, 2025)
 - ✅ **COMPLETE NOTIFICATION & CHAT SYSTEM IMPLEMENTED**
   - **Database**: Created `notifications`, `conversations`, and `conversation_messages` tables
