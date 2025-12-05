@@ -82,11 +82,14 @@ class Conversation {
                      ORDER BY cm2.created_at DESC LIMIT 1) as last_message,
                     (SELECT created_at FROM conversation_messages cm3 
                      WHERE cm3.conversation_id = c.id 
-                     ORDER BY cm3.created_at DESC LIMIT 1) as last_message_time
+                     ORDER BY cm3.created_at DESC LIMIT 1) as last_message_time,
+                    (SELECT COUNT(*) FROM conversation_messages cm4 
+                     WHERE cm4.conversation_id = c.id) as message_count
                     FROM conversations c
                     JOIN jobs j ON c.job_id = j.id
                     JOIN users emp ON c.employer_id = emp.id
                     WHERE c.candidate_id = :user_id2 AND c.status = 'active'
+                    HAVING message_count > 0
                     ORDER BY last_message_time DESC";
         }
         $stmt = $this->db->prepare($sql);

@@ -42,6 +42,12 @@ class ChatController {
         
         $conversation = $this->conversationModel->findById($id);
         $messages = $this->messageModel->getByConversationId($id);
+        
+        if ($user['type'] === 'jobseeker' && empty($messages)) {
+            setFlash('error', 'This conversation is not available yet. Please wait for the employer to contact you.');
+            redirect('/chat');
+        }
+        
         $conversations = $this->conversationModel->getByUserId($user['id'], $user['type']);
         
         $this->messageModel->markAsRead($id, $user['id']);
