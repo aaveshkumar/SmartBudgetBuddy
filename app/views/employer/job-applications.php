@@ -19,30 +19,15 @@ require __DIR__ . '/../common/header.php';
         <div class="alert alert-info">
             <h5><i class="fas fa-bell"></i> Send Selection Notification to <?= htmlspecialchars($notification['candidate_name']) ?></h5>
             <p class="mb-2">Click below to notify the candidate about their selection:</p>
-            <button type="button" class="btn btn-primary me-2" onclick="sendSelectionEmail()">
+            <a href="mailto:<?= htmlspecialchars($notification['candidate_email']) ?>?subject=<?= urlencode($notification['email_subject']) ?>&body=<?= urlencode($notification['email_body']) ?>" class="btn btn-primary me-2">
                 <i class="fas fa-envelope"></i> Send Email Notification
-            </button>
+            </a>
             <?php if ($notification['candidate_phone']): ?>
-            <button type="button" class="btn btn-success" onclick="sendSelectionWhatsApp()">
+            <a href="https://wa.me/<?= htmlspecialchars($notification['candidate_phone']) ?>?text=<?= urlencode($notification['whatsapp_message']) ?>" target="_blank" class="btn btn-success">
                 <i class="fab fa-whatsapp"></i> Send WhatsApp Notification
-            </button>
+            </a>
             <?php endif; ?>
         </div>
-        <script>
-            function sendSelectionEmail() {
-                var email = <?= json_encode($notification['candidate_email']) ?>;
-                var subject = <?= json_encode($notification['email_subject']) ?>;
-                var body = <?= json_encode($notification['email_body']) ?>;
-                var mailtoLink = 'mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-                window.location.href = mailtoLink;
-            }
-            function sendSelectionWhatsApp() {
-                var phone = <?= json_encode($notification['candidate_phone']) ?>;
-                var message = <?= json_encode($notification['whatsapp_message']) ?>;
-                var whatsappLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
-                window.open(whatsappLink, '_blank');
-            }
-        </script>
     <?php endif; ?>
     
     <div class="card mb-4">
@@ -101,13 +86,13 @@ require __DIR__ . '/../common/header.php';
                                     </a>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-info text-white" onclick="sendEmail<?= $index ?>()" title="Send Email">
+                                    <a href="mailto:<?= htmlspecialchars($email) ?>?subject=<?= urlencode("Regarding your application for $jobTitle") ?>&body=<?= urlencode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards") ?>" class="btn btn-sm btn-info text-white" title="Send Email">
                                         <i class="fas fa-envelope"></i> Email
-                                    </button>
+                                    </a>
                                     <?php if ($cleanPhone): ?>
-                                    <button type="button" class="btn btn-sm btn-success mt-1" onclick="sendWhatsApp<?= $index ?>()" title="Send WhatsApp">
+                                    <a href="https://wa.me/<?= htmlspecialchars($cleanPhone) ?>?text=<?= urlencode("Hello $name, I'm reaching out regarding your application for the position of $jobTitle.") ?>" target="_blank" class="btn btn-sm btn-success mt-1" title="Send WhatsApp">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
-                                    </button>
+                                    </a>
                                     <?php else: ?>
                                     <button class="btn btn-sm btn-secondary mt-1" disabled title="No phone number">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
@@ -118,23 +103,6 @@ require __DIR__ . '/../common/header.php';
                                         <i class="fas fa-comment"></i> Message
                                     </a>
                                     <?php endif; ?>
-                                    <script>
-                                        function sendEmail<?= $index ?>() {
-                                            var email = <?= json_encode($email) ?>;
-                                            var subject = <?= json_encode("Regarding your application for $jobTitle") ?>;
-                                            var body = <?= json_encode("Dear $name,\n\nThank you for applying for the position of $jobTitle.\n\nBest regards") ?>;
-                                            var mailtoLink = 'mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-                                            window.location.href = mailtoLink;
-                                        }
-                                        <?php if ($cleanPhone): ?>
-                                        function sendWhatsApp<?= $index ?>() {
-                                            var phone = <?= json_encode($cleanPhone) ?>;
-                                            var message = <?= json_encode("Hello $name, I'm reaching out regarding your application for the position of $jobTitle.") ?>;
-                                            var whatsappLink = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
-                                            window.open(whatsappLink, '_blank');
-                                        }
-                                        <?php endif; ?>
-                                    </script>
                                 </td>
                                 <td>
                                     <?php if ($isSelected): ?>

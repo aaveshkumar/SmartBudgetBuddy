@@ -118,18 +118,17 @@ class ChatController {
         $messageId = $this->messageModel->create($messageData);
         
         if ($messageId) {
-            $conversation = $this->conversationModel->findById($conversationId);
-            $recipientId = $user['type'] === 'employer' ? $conversation['candidate_id'] : $conversation['employer_id'];
-            
-            $this->notificationModel->notifyNewChatMessage($recipientId, $user['id'], $conversationId, $user['name']);
-            
             $newMessage = $this->messageModel->findById($messageId);
             echo json_encode([
                 'success' => true,
                 'message' => $newMessage
             ]);
         } else {
-            echo json_encode(['error' => 'Failed to send message']);
+            $errorMsg = 'Failed to send message';
+            if (!empty($attachmentData)) {
+                $errorMsg .= '. The attachment may have failed to save to the database.';
+            }
+            echo json_encode(['error' => $errorMsg]);
         }
     }
     
