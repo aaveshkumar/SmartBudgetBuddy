@@ -253,6 +253,9 @@ class EmployerController {
             redirect("/employer/jobs/$jobId/applications");
         }
         
+        // Update application status to selected
+        $this->applicationModel->updateStatus($applicationId, 'selected');
+        
         // Prepare email and WhatsApp notification details
         $candidateName = $application['applicant_name'];
         $candidateEmail = $application['applicant_email'];

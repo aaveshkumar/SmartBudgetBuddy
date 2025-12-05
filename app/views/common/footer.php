@@ -34,7 +34,7 @@
         </div>
     </footer>
     
-    <?php if (isset($currentUser) && $currentUser && $currentUser['status'] === 'active'): ?>
+    <?php if (isset($currentUser) && $currentUser && ($currentUser['status'] ?? 'active') === 'active'): ?>
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
